@@ -7,12 +7,12 @@
 #include "indexUtils.h"
 #include "fileUtils.h"
 
-static int campoEstaPreenchido(char codigo, registro_t* reg);
+
 void registraCodigos(int numCodigosUtilizados, registro_t* reg, int cod);
 static char* readStrQuote(FILE* fptr);
 
 /**
- * @brief Lê uma string de tamanho variável a partir do arquivo 'a', 
+ * @brief Lê uma string de tamanho variável a partir do arquivo 'a',
  * até que seja lido o caractere delimitador
  *
  * @param a : Arquivo fonte
@@ -49,7 +49,7 @@ char* readUntil(FILE* a, char delimiter)
 }
 
 /**
- * @brief Lê um número inteiro a partir de um arquivo, até que o 
+ * @brief Lê um número inteiro a partir de um arquivo, até que o
  * caractere delimitador seja encontrado
  *
  * @param a : Arquivo fonte
@@ -72,7 +72,7 @@ int readNumberUntil(FILE* a, char delimiter)
 }
 
 /**
- * @brief Lê uma string estática a partir de um arquivo, até que o 
+ * @brief Lê uma string estática a partir de um arquivo, até que o
  * caractere delimitador seja encontrado
  *
  * @param a : Arquivo fonte
@@ -237,43 +237,48 @@ registro_t* inicializarRegistro()
  * @param r : Ponteiro para a struct com os dados do registro
  * @param c : Ponteiro para a struct com os dados do cabeçalho
  */
-void imprimirRegistro(registro_t *reg,cabecalho_t *cab){
+void imprimirRegistro(registro_t* reg, cabecalho_t* cab) {
 
 	printf("%s", cab->desC6);
-	if(campoEstaPreenchido('1',reg)){
+	if (campoEstaPreenchido('1', reg)) {
 		printf("%.*s\n", reg->tamMarca, reg->marca);
-	}else{
+	}
+	else {
 		printf("NAO PREENCHIDO\n");
 	}
 
 	printf("%s", cab->desC7);
-	if(campoEstaPreenchido('2',reg)){
+	if (campoEstaPreenchido('2', reg)) {
 		printf("%.*s\n", reg->tamModelo, reg->modelo);
-	}else{
+	}
+	else {
 		printf("NAO PREENCHIDO\n");
 	}
 
 	printf("%s", cab->desC2);
-	if(reg->ano != -1){
+	if (reg->ano != -1) {
 		printf("%i\n", reg->ano);
-	}else{
+	}
+	else {
 		printf("NAO PREENCHIDO\n");
 	}
-	
+
 	printf("%s", cab->desC5);
-	if(campoEstaPreenchido('0',reg)){
+	if (campoEstaPreenchido('0', reg)) {
 		printf("%.*s\n", reg->tamCidade, reg->cidade);
-	}else{
+	}
+	else {
 		printf("NAO PREENCHIDO\n");
 	}
 
 	printf("%s", cab->desC3);
-	if(reg->qtt != -1){
+	if (reg->qtt != -1) {
 		printf("%i\n", reg->qtt);
-	}else{
+	}
+	else {
 		printf("NAO PREENCHIDO\n");
 	}
-	
+
 	printf("\n");
 }
 
@@ -281,18 +286,18 @@ void imprimirRegistro(registro_t *reg,cabecalho_t *cab){
  * @brief Libera a memória alocada para armazenar os dados
  * de um registro
  *
- * @param reg : Ponteiro para a struct que contém os dados do 
+ * @param reg : Ponteiro para a struct que contém os dados do
  * registro
  */
-void liberaRegistro(registro_t *reg){
+void liberaRegistro(registro_t* reg) {
 
-	if(campoEstaPreenchido('0',reg)){
+	if (campoEstaPreenchido('0', reg)) {
 		free(reg->cidade);
 	}
-	if(campoEstaPreenchido('1',reg)){
+	if (campoEstaPreenchido('1', reg)) {
 		free(reg->marca);
 	}
-	if(campoEstaPreenchido('2',reg)){
+	if (campoEstaPreenchido('2', reg)) {
 		free(reg->modelo);
 	}
 
@@ -315,30 +320,34 @@ void liberaMemSelect(int delCab, char* tArq, char* aEnt, FILE* fptr, cabecalho_t
 	}
 }
 
-static int campoEstaPreenchido(char codigo, registro_t *reg){
+/**
+ * @brief informa se o campo do código recebeu alugm valor
+ * ou não foi alocado
+ */
+int campoEstaPreenchido(char codigo, registro_t* reg) {
 	return reg->codC5 == codigo || reg->codC6 == codigo || reg->codC7 == codigo;
 }
 
-static int validaFiltroInt(registro_t *reg, buscaParams_t *busca, int filtro){
+static int validaFiltroInt(registro_t* reg, buscaParams_t* busca, int filtro) {
 	int val;
-	switch (filtro){
-		case 0: val = reg->id;
-			break;
-		case 1: val = reg->ano;
-			break;
-		case 2: val = reg->qtt;
+	switch (filtro) {
+	case 0: val = reg->id;
+		break;
+	case 1: val = reg->ano;
+		break;
+	case 2: val = reg->qtt;
 	}
 
 	return atoi(busca->filtros[filtro]) == val;
 }
 
-static int strcmpWLen(char* num1, char* num2, int sz1,int sz2){
-	if(sz2 != sz1){
+static int strcmpWLen(char* num1, char* num2, int sz1, int sz2) {
+	if (sz2 != sz1) {
 		return 0;
 	}
 
-	for(int i =0; i < sz1; i++){
-		if(num1[i] != num2[i]){
+	for (int i = 0; i < sz1; i++) {
+		if (num1[i] != num2[i]) {
 			return 0;
 		}
 	}
@@ -350,11 +359,21 @@ static int validaFiltroStr(registro_t* reg, buscaParams_t* busca, int filtro) {
 	char* val = NULL;
 	int tam = 0;
 
+	if (busca->filtros[filtro] == NULL) {
+		if (filtro == 4) reg->cidade == NULL;
+		if (filtro == 5) reg->marca == NULL;
+		if (filtro == 6) reg->modelo == NULL;
+	}
+
 	if (filtro > 3 && !campoEstaPreenchido(filtro + 44, reg)) {
 		return 0;
 	}
 
 	if (filtro == 3) {
+		if (!busca->filtros[3]) {
+			return reg->sigla[0] == '$';
+		}
+
 		if (reg->sigla[0] != busca->filtros[3][0]) return 0;
 		if (reg->sigla[1] != busca->filtros[3][1]) return 0;
 		return 1;
@@ -376,15 +395,16 @@ static int validaFiltroStr(registro_t* reg, buscaParams_t* busca, int filtro) {
 	return strcmpWLen(ref, val, tam, strlen(ref));
 }
 
-int ehValidoFiltro(registro_t *reg, buscaParams_t *busca){
+int ehValidoFiltro(registro_t* reg, buscaParams_t* busca) {
 
-	for(int i =0; i < NUM_PARAMETROS; i++){
-		if(busca->ehBuscado[i] && i < 3){
-			if(!validaFiltroInt(reg,busca,i)){
+	for (int i = 0; i < NUM_PARAMETROS; i++) {
+		if (busca->ehBuscado[i] && i < 3) {
+			if (!validaFiltroInt(reg, busca, i)) {
 				return 0;
 			}
-		}else if(busca->ehBuscado[i]){
-			if(!validaFiltroStr(reg,busca,i)){
+		}
+		else if (busca->ehBuscado[i]) {
+			if (!validaFiltroStr(reg, busca, i)) {
 				return 0;
 			}
 		}
@@ -491,7 +511,7 @@ bool arquivoConsistente(char status)
  */
 int buscaBinaria(int chave, registroIndice_t* vetor, int esq, int dir)
 {
-	if (dir >= esq) 
+	if (dir >= esq)
 	{
 		int mid = esq + (dir - esq) / 2;
 
@@ -508,27 +528,48 @@ int buscaBinaria(int chave, registroIndice_t* vetor, int esq, int dir)
 
 static void RecebeFiltros(int numFiltros, buscaParams_t* busca, FILE* arquivo)
 {
+
 	for (int i = 0; i < numFiltros; i++)
 	{
+		//lê o nome do campo que será filtrado e busca por posição onde será inserido
 		char* nomeCampo = readUntil(arquivo, ' ');
-		//printf("CAMPO: %s\n", nomeCampo);
 		for (int j = 0; j < NUM_PARAMETROS; j++)
 		{
-			if (!strcmp(busca->filtros[j], nomeCampo))
+			//Se o filtro para este campo ainda não foi definido, define ele agora
+			if (!busca->ehBuscado[j] && !strcmp(busca->filtros[j], nomeCampo))
 			{
+				//marca que este campo será filtrado
 				busca->ehBuscado[j] = 1;
 
 				if (j < 3)
 				{
-					busca->filtros[j] = readUntil(arquivo, ' ');
-					//printf("VALOR: %s\n\n", busca->filtros[j]);
+					//Verifica se o campo é nulo
+					char verificacao = getchar();
+					if (verificacao == 'N') {
+						char descarte[5];
+						fread(descarte, 4, 1, arquivo);
+						busca->filtros[j] = malloc(sizeof(char) * 2);
+						busca->filtros[j] = "-1";
+					}
+					else {
+						ungetc(verificacao, arquivo);
+						busca->filtros[j] = readUntil(arquivo, ' ');
+					}
 				}
 				else
 				{
-					getc(arquivo);
-					busca->filtros[j] = readUntil(arquivo, '"');
-					getc(arquivo);
-					//printf("VALOR: %s\n\n", busca->filtros[j]);
+					//verifica se campo é nulo
+					char ver = getchar();
+					if (ver == 'N') {
+						char descarte[5];
+						fread(descarte, 4, 1, arquivo);
+						busca->filtros[j] = NULL;
+					}
+					else {
+						busca->filtros[j] = readUntil(arquivo, '"');
+						getchar();
+					}
+
 				}
 			}
 		}
@@ -538,7 +579,7 @@ static void RecebeFiltros(int numFiltros, buscaParams_t* busca, FILE* arquivo)
 
 /**
  * @brief Desaloca a memória usada para a busca
- * 
+ *
  * @param busca : struct com os campos de busca
  */
 void liberaStructBusca(buscaParams_t* busca)
@@ -550,8 +591,10 @@ void liberaStructBusca(buscaParams_t* busca)
 }
 
 /**
- * @brief Inicializa os campos da struct de filtro para
- * ser utilizada no select com where
+ * @brief Inicializa os campos da struct de filtro
+ * @param busca: struct de busca que será inicializada
+ * @param numFiltros: a quantidade de filtros que serão inseridos
+ * @param fptr: arquivo com os parâmetros da bussca(geralmente stdin)
  */
 void inicializaStructBusca(buscaParams_t* busca, int numFiltros, FILE* fptr)
 {
@@ -565,7 +608,7 @@ void inicializaStructBusca(buscaParams_t* busca, int numFiltros, FILE* fptr)
 
 	strcpy(busca->filtros[0], "id");
 	strcpy(busca->filtros[1], "ano");
-	strcpy(busca->filtros[2], "quantidade");
+	strcpy(busca->filtros[2], "qtt");
 	strcpy(busca->filtros[3], "sigla");
 	strcpy(busca->filtros[4], "cidade");
 	strcpy(busca->filtros[5], "marca");
@@ -596,7 +639,11 @@ void registraCodigos(int numCodigosUtilizados, registro_t* reg, int cod)
 		break;
 	}
 }
-
+/**
+ * @brief Lê registro a partir da stdin e retorna uma struct registro
+ * @return o registro lido da stdin
+ * @param tipoRegistro: O tipo do registro
+ */
 registro_t* lerRegistroStdin(int tipoRegistro)
 {
 
@@ -685,7 +732,11 @@ registro_t* lerRegistroStdin(int tipoRegistro)
 
 	return registro;
 }
-
+/**
+ * @brief Lê valor da stdin entre aspas
+ * @return resultado da leitura
+ * @param fptr: arquivo
+ */
 static char* readStrQuote(FILE* fptr)
 {
 
@@ -695,6 +746,7 @@ static char* readStrQuote(FILE* fptr)
 	// Lê tudo até o primeiro "
 	while ((tmpchr = fgetc(fptr)) != '\"')
 	{
+		// Se detectar NULO antes da primeira aspas, retorna null
 		if (tmpchr == nulo[contagemNulo])
 			contagemNulo++;
 		else
@@ -718,11 +770,14 @@ static char* readStrQuote(FILE* fptr)
 
 	return palavra;
 }
-
+/**
+ * @brief Lê filtros que serão utilizados para o update
+ */
 buscaParams_t* lerFiltrosUpdate()
 {
 	int numFiltros = readNumberUntil(stdin, ' ');
 	buscaParams_t* busca = malloc(sizeof(buscaParams_t));
 	inicializaStructBusca(busca, numFiltros, stdin);
+
 	return busca;
 }

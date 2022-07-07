@@ -1,4 +1,4 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
@@ -8,10 +8,10 @@
 #include "indexUtils.h"
 
 /**
- * @brief Escreve o cabeçalho em um arquivo binário de índices
+ * @brief Escreve o cabeï¿½alho em um arquivo binï¿½rio de ï¿½ndices
  *
  * @param index : ponteiro para o arquivo
- * @param cabecalho : struct contendo os dados do cabeçalho
+ * @param cabecalho : struct contendo os dados do cabeï¿½alho
  */
 void escreverCabecalhoIndex(FILE* index, cabecalhoIndex_t* cabecalho)
 {
@@ -20,10 +20,10 @@ void escreverCabecalhoIndex(FILE* index, cabecalhoIndex_t* cabecalho)
 }
 
 /**
- * @brief Escreve o cabeçalho em um arquivo binário de índices
+ * @brief Escreve o cabeï¿½alho em um arquivo binï¿½rio de ï¿½ndices
  *
  * @param index : ponteiro para o arquivo
- * @return cabecalhoIndex_t : struct contendo os dados do cabeçalho
+ * @return cabecalhoIndex_t : struct contendo os dados do cabeï¿½alho
  */
 cabecalhoIndex_t* lerCabecalhoIndex(FILE* index)
 {
@@ -34,7 +34,7 @@ cabecalhoIndex_t* lerCabecalhoIndex(FILE* index)
 }
 
 /**
- * @brief Inicializa uma struct que guarda o índice em RAM
+ * @brief Inicializa uma struct que guarda o ï¿½ndice em RAM
  *
  * @return indice_t : struct contendo os dados do indice inicializados
  */
@@ -48,10 +48,10 @@ indice_t* inicializarIndice()
 }
 
 /**
- * @brief Escreve o índice em um arquivo binário de índices
+ * @brief Escreve o ï¿½ndice em um arquivo binï¿½rio de ï¿½ndices
  *
- * @param index_fptr : ponteiro para o arquivo de índices
- * @param indice : struct contendo os dados do índice
+ * @param index_fptr : ponteiro para o arquivo de ï¿½ndices
+ * @param indice : struct contendo os dados do ï¿½ndice
  * @param tipo : inteiro informando o tipo do arquivo
  */
 void escreverIndice(FILE* index_fptr, indice_t* indice, int tipo)
@@ -69,9 +69,9 @@ void escreverIndice(FILE* index_fptr, indice_t* indice, int tipo)
 }
 
 /**
- * @brief Desaloca a memória utilizada no índice
+ * @brief Desaloca a memï¿½ria utilizada no ï¿½ndice
  *
- * @param indice : struct contendo os dados do índice
+ * @param indice : struct contendo os dados do ï¿½ndice
  */
 void liberarIndice(indice_t* indice)
 {
@@ -80,9 +80,9 @@ void liberarIndice(indice_t* indice)
 }
 
 /**
- * @brief Lê um registro(de índice) a partir de um arquivo binário de índices
+ * @brief Lï¿½ um registro(de ï¿½ndice) a partir de um arquivo binï¿½rio de ï¿½ndices
  *
- * @param index : ponteiro para o arquivo de índices
+ * @param index : ponteiro para o arquivo de ï¿½ndices
  * @param tipo : inteiro informando o tipo do arquivo
  * @return registroIndice_t : struct contendo os dados do registro lido
  */
@@ -99,11 +99,11 @@ registroIndice_t* lerRegistroIndex(FILE* index, int tipo)
 }
 
 /**
- * @brief Lê um arquivo binário de índices e salva o índice na RAM
+ * @brief Lï¿½ um arquivo binï¿½rio de ï¿½ndices e salva o ï¿½ndice na RAM
  *
- * @param index : ponteiro para o arquivo de índices
+ * @param index : ponteiro para o arquivo de ï¿½ndices
  * @param tipo : inteiro informando o tipo do arquivo
- * @return indice_t : struct contendo os dados do índice
+ * @return indice_t : struct contendo os dados do ï¿½ndice
  */
 indice_t* indiceParaRAM(FILE* index, int tipo)
 {
@@ -112,29 +112,29 @@ indice_t* indiceParaRAM(FILE* index, int tipo)
 	i->registros = NULL;
 
 	char buffer;
-    int count = 0;
+	int count = 0;
 	fseek(index, TAM_CABECALHO_IND, SEEK_SET);
 
-    while (fread(&buffer, 1, 1, index) != 0)
-    {
+	while (fread(&buffer, 1, 1, index) != 0)
+	{
 		fseek(index, -1, SEEK_CUR);
 
 		registroIndice_t* registroIndice = lerRegistroIndex(index, tipo);
-        i->registros = realloc(i->registros, (count + 1) * sizeof(registroIndice_t));
-        i->registros[count] = (*registroIndice);
-        
-        count++;
-        free(registroIndice);
-    }
-    i->tamanho = count;
+		i->registros = realloc(i->registros, (count + 1) * sizeof(registroIndice_t));
+		i->registros[count] = (*registroIndice);
+
+		count++;
+		free(registroIndice);
+	}
+	i->tamanho = count;
 
 	return i;
 }
 
 /**
- * @brief Busca um registro(de índice) a partir de um índice na RAM
+ * @brief Busca um registro(de ï¿½ndice) a partir de um ï¿½ndice na RAM
  *
- * @param indice : ponteiro para a struct contendo os dados do índice
+ * @param indice : ponteiro para a struct contendo os dados do ï¿½ndice
  * @param chave : id a ser buscado
  * @return registroIndice_t : struct contendo os dados do registro buscado
  */
@@ -143,7 +143,7 @@ registroIndice_t* buscaIndex(indice_t* indice, int chave)
 	registroIndice_t* registro = NULL;
 	int posicao = buscaBinaria(chave, indice->registros, 0, indice->tamanho);
 
-	if (posicao == -1) // registro não achado pela busca binária
+	if (posicao == -1) // registro nï¿½o achado pela busca binï¿½ria
 		return NULL;
 
 	else
@@ -153,22 +153,22 @@ registroIndice_t* buscaIndex(indice_t* indice, int chave)
 }
 
 /**
- * @brief Remove um registro de um índice na RAM
+ * @brief Remove um registro de um ï¿½ndice na RAM
  *
- * @param indice : ponteiro para a struct contendo os dados do índice
+ * @param indice : ponteiro para a struct contendo os dados do ï¿½ndice
  * @param id : vetor de ids a serem removidos
  * @param tipo : inteiro informando o tipo do arquivo
  * @param qttId : quantidade de ids a serem removidos
- * @return indice_t : struct contendo os dados do índice após as remoções
+ * @return indice_t : struct contendo os dados do ï¿½ndice apï¿½s as remoï¿½ï¿½es
  */
 indice_t* removerRegistroIndex(indice_t* indice, int* id, int tipo, int qttId)
 {
 	for (int i = 0; i < qttId; i++)
 	{
 		int posicao = buscaBinaria(id[i], indice->registros, 0, indice->tamanho);
-		
+
 		if (posicao == -1)
-		{ // registro não achado pela busca binária
+		{ // registro nï¿½o achado pela busca binï¿½ria
 			return indice;
 		}
 
@@ -179,4 +179,17 @@ indice_t* removerRegistroIndex(indice_t* indice, int* id, int tipo, int qttId)
 		indice->registros = realloc(indice->registros, indice->tamanho * sizeof(registroIndice_t));
 	}
 	return indice;
+}
+
+void atualizarRegistroIndex(indice_t* indice, registroIndice_t* reg, int tipo, int idAnterior) {
+
+	int posicao = buscaBinaria(idAnterior, indice->registros, 0, indice->tamanho);
+
+	if (posicao == -1)// registro nÃ£o existe
+		return;
+	else {
+		indice->registros[posicao] = *reg;
+	}
+
+	qsort(indice->registros, indice->tamanho, sizeof(registroIndice_t), compara);
 }

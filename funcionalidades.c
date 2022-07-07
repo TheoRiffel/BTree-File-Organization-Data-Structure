@@ -7,7 +7,7 @@
 #include <string.h>
 
 /**
- * @brief Equivalente ao comando SQL, cria uma tabela (arquivo binario) 
+ * @brief Equivalente ao comando SQL, cria uma tabela (arquivo binario)
  * de registros, a partir de um arquivo csv dado como entrada
  */
 void createTable()
@@ -167,7 +167,7 @@ void selectCWhere()
     }
     else
     {
-        printf("Falha no processamento do arquivo.\n"); 
+        printf("Falha no processamento do arquivo.\n");
         fclose(fptr);
         free(cab);
         liberaStrings(tipoArquivo, arquivoEntrada, NULL);
@@ -195,7 +195,7 @@ void selectCWhere()
 
     inicializaStructBusca(busca, numFiltros, stdin);
 
-    percorreArquivoAplicandofiltro(fptr, busca, tArquivo, cab, final, &acaoFiltro_imprimirRegistro, NULL);
+    percorreArquivoAplicandofiltro(fptr, busca, tArquivo, cab, final, &acaoFiltro_imprimirRegistro, NULL, NULL, NULL);
 
     fclose(fptr);
     free(cab);
@@ -232,7 +232,7 @@ void recuperarRegistro()
             liberaStrings(tipoArquivo, arquivoEntrada, NULL);
             return;
         }
-        cabecalho_t* cabecalho = lerCabecalho(1,entrada);
+        cabecalho_t* cabecalho = lerCabecalho(1, entrada);
         if (arquivoConsistente(cabecalho->status) == false)
         {
             fclose(entrada);
@@ -246,7 +246,7 @@ void recuperarRegistro()
         {
             fseek(entrada, (RRN * TAM_REG) + TAM_CABECALHO1, 0);
             registro_t* reg = lerRegistro(1, entrada, (cabecalho->proxRRN * TAM_REG) + TAM_CABECALHO1);
-            if(reg->removido == REGISTRO_REMOVIDO) 
+            if (reg->removido == REGISTRO_REMOVIDO)
                 printf("Registro inexistente.\n");
             else imprimirRegistro(reg, cabecalho);
             liberaRegistro(reg);
@@ -331,11 +331,11 @@ void createIndex()
             liberaRegistro(registro);
             continue;
         }
-        
+
         registroIndice_t* registroIndice = malloc(sizeof(registroIndice_t));
 
         if (tipo == 1)
-            registroIndice->RRN = ((ftell(dados) - TAM_CABECALHO1) / TAM_REG ) - 1;
+            registroIndice->RRN = ((ftell(dados) - TAM_CABECALHO1) / TAM_REG) - 1;
 
         else if (tipo == 2)
             registroIndice->byteOffset = ftell(dados) - registro->tamRegistro - 5;
@@ -345,13 +345,13 @@ void createIndex()
         //adicionar registro do tipo índice ao vetor que contitui o índice
         indice->registros = realloc(indice->registros, (count + 1) * sizeof(registroIndice_t));
         indice->registros[count] = (*registroIndice);
-        
+
         count++;
-       
+
         liberaRegistro(registro);
         free(registroIndice);
     }
-    
+
     indice->tamanho = count;
     cabecalhoIndice->status = ARQUIVO_CONSISTENTE;
 
@@ -359,7 +359,7 @@ void createIndex()
 
     escreverCabecalhoIndex(index_fptr, cabecalhoIndice);
     escreverIndice(index_fptr, indice, tipo);
-    
+
     fclose(dados);
     fclose(index_fptr);
 
@@ -431,7 +431,7 @@ void delete()
 
     indice_t* indice = indiceParaRAM(index_fptr, tipo);
     idsRemovidos_t* removidos = NULL;
-    
+
     for (int i = 0; i < numRemocoes; i++)
     {
         removidos = removerRegistro(dados, index_fptr, cabecalho, tipo);
@@ -459,65 +459,114 @@ void delete()
     liberaStrings(tipoArquivo, arquivoDados, arquivoIndice);
 }
 
-
+/**
+ * @brief Equivalente ao insertInto do SQL, insere um registro
+ * no arquivo
+ */
 void insertInto()
 {
-
+    //armazena informações do arquivo de dados
     arquivo_t* arq = inicializaStrcArquivo();
 
-    char* arquivoIndice = readUntil(stdin, ' ');
+    // armazena informações do arquivo de indice
+    arq->nomeArqIndes = readUntil(stdin, ' ');
     int numInserts = readNumberUntil(stdin, '\n');
+    arq->indexfptr = fopen(arq->nomeArqIndes, "r+b");
 
-    arq->indexfptr = fopen(arquivoIndice, "w+b");
+    if (!arq->indexfptr) {
+        printf("Falha ao abrir o arquivo\n");
+        return;
+    }
 
+    //Vai até o inicio do arquivo e marca seu status como inconsistente
     fseek(arq->fptr, 0, SEEK_SET);
     fwrite("0", 1, 1, arq->fptr);
+
+    //le arquivo de indices e armazena na RAM
+    cabecalhoIndex_t* cabIndex = lerCabecalhoIndex(arq->indexfptr);
+    cabIndex->status = ARQUIVO_INCONSISTENTE;
+    escreverCabecalhoIndex(arq->indexfptr, cabIndex);
+    arq->indice = indiceParaRAM(arq->indexfptr, arq->tipo);
 
     for (int i = 0; i < numInserts; i++)
     {
         arq->reg = lerRegistroStdin(arq->tipo);
-        insereRegistroNoArquivo(arq);
+        insereRegistroNoArquivo(arq, arq->indice);
         liberaRegistro(arq->reg);
     }
 
-    //if (arq->tipo == 1)
-    //{
-    //    //atualizaCabecariot1(arq);
-    //}
-    //else
-    //{
-    //    atualizaCabecariot2(arq);
-    //}
+    //escreve dados no arquivo de indices
+    escreverCabecalhoIndex(arq->indexfptr, cabIndex);
+    atualizarCabecalho(arq->fptr, arq->cab, arq->tipo);
 
+    arq->indexfptr = freopen(arq->nomeArqIndes, "wb", arq->indexfptr);
+    escreverIndice(arq->indexfptr, arq->indice, arq->tipo);
+    cabIndex->status = ARQUIVO_CONSISTENTE;
+    escreverCabecalhoIndex(arq->indexfptr, cabIndex);
+
+    //Volta ao começo do arquivo e marca o status como consistente
+    fseek(arq->fptr, 0, SEEK_SET);
+    fwrite("1", 1, 1, arq->fptr);
+
+    //Libera memória da struct e printa dados na tela
+    fclose(arq->fptr);
+    fclose(arq->indexfptr);
+
+    binarioNaTela(arq->nomeArqDados);
+    binarioNaTela(arq->nomeArqIndes);
+
+    liberarStrctArq(arq);
+
+}
+
+/**
+ * @brief Equivalente ao update do SQL, atualiza um registro
+ * no arquivo
+ */
+void update() {
+
+    //inicializa arquivo de dados e de indice
+    arquivo_t* arq = inicializaStrcArquivo();
+
+    arq->nomeArqIndes = readUntil(stdin, ' ');
+    int numUpdates = readNumberUntil(stdin, '\n');
+    arq->indexfptr = fopen(arq->nomeArqIndes, "r+b");
+
+    //Vai até o inicio do arquivo e marca seu status como inconsistente
+    fseek(arq->fptr, 0, SEEK_SET);
+    fwrite("0", 1, 1, arq->fptr);
+
+    cabecalhoIndex_t* cabIndex = lerCabecalhoIndex(arq->indexfptr);
+    cabIndex->status = ARQUIVO_INCONSISTENTE;
+    escreverCabecalhoIndex(arq->indexfptr, cabIndex);
+    arq->indice = indiceParaRAM(arq->indexfptr, arq->tipo);
+
+    //para cada busca, cria dois arquivos de filtro
+    // um para armazenar campos que serão filtrados
+    // e o segundo para armazenar os novos valores
+    for (int i = 0; i < numUpdates; i++) {
+        buscaParams_t* busca = lerFiltrosUpdate();
+        buscaParams_t* parametrosUpdate = lerFiltrosUpdate();
+
+        updateRegistros(arq, busca, parametrosUpdate);
+        liberaStructBusca(busca);
+        liberaStructBusca(parametrosUpdate);
+    }
+
+    cabIndex->status = ARQUIVO_CONSISTENTE;
+    escreverCabecalhoIndex(arq->indexfptr, cabIndex);
+
+    escreverIndice(arq->indexfptr, arq->indice, arq->tipo);
+
+    //Volta ao começo do arquivo e marca o status como consistente
     fseek(arq->fptr, 0, SEEK_SET);
     fwrite("1", 1, 1, arq->fptr);
 
     fclose(arq->fptr);
+    fclose(arq->indexfptr);
 
-    // funcs de Liberar memória
+    binarioNaTela(arq->nomeArqDados);
+    binarioNaTela(arq->nomeArqIndes);
 
-}
-
-
-void update() {
-
-    //Liberar memória no final
-    //terminar de trocar parametros das funções de percorre filtro para arq
-    //limpar e copiar acaoFiltro
-
-    arquivo_t* arq = inicializaStrcArquivo();
-    char* arquivoIndice = readUntil(stdin, ' ');
-    int numUpdates = readNumberUntil(stdin, '\n');
-
-    arq->indexfptr = fopen(arquivoIndice, "r+b");
-
-    for (int i = 0; i < numUpdates; i++) {
-        buscaParams_t* busca = lerFiltrosUpdate();
-        buscaParams_t* parametrosUpdate = lerFiltrosUpdate();
-        if (arq->tipo == 1)
-            //    percorreArquivoAplicandofiltro(arq->fptr, busca, arq->tipo, arq->cab, arq->final, &acaoFiltro_atualizarRegistro);
-            liberaStructBusca(busca);
-        liberaStructBusca(parametrosUpdate);
-    }
-
+    liberarStrctArq(arq);
 }

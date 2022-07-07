@@ -59,9 +59,9 @@ typedef struct registro
 	char codC7;
 } registro_t;
 
-typedef struct buscaParams{
+typedef struct buscaParams {
 	int ehBuscado[7];
-	char **filtros;
+	char** filtros;
 } buscaParams_t;
 
 typedef struct cabecalhoIndice
@@ -93,6 +93,9 @@ typedef struct arquivo {
 	registro_t* reg;
 	FILE* fptr;
 	FILE* indexfptr;
+	char* nomeArqDados;
+	char* nomeArqIndes;
+	indice_t* indice;
 	int tipo;
 	long int final;
 }arquivo_t;

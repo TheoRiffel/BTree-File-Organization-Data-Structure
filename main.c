@@ -6,10 +6,10 @@
  |                                   2022/1                                    |
  |                                                                             |
  |              Autores: Maria Júlia Soares De Grandi (12542501)               |
- |                       Lucas Pereira Pacheco (12543930)                      |
+ |                       Théo Bruno Frey Riffel (12547812)                     |
  |                            Disciplina: SCC0215                              |
  *******************************************************************************
-  > Primeiro Trabalho Prático
+  > Terceiro Trabalho Prático
  ******************************************************************************/
 
 #include <stdio.h>
@@ -45,6 +45,14 @@ int main()
 		break;
 	case 8:
 		update();
+		break;
+	case 9:
+		break;
+	case 10:
+		break;
+	case 11:
+		break;
+	case 12:
 		break;
 	}
 
