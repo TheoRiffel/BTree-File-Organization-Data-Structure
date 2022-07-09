@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "funcionalidades.h": "c",
+        "utils.h": "c",
+        "indexutils.h": "c",
+        "fileutils.h": "c",
+        "stdlib.h": "c"
+    }
+}

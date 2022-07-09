@@ -14,7 +14,6 @@ LEAKFLAGS     := --leak-check=full --show-leak-kinds=all --track-origins=yes
 
 rem:
 	rm *.bin
-	rm *.in
 cpy:
 	cp arquivos/antes/* ./
 
