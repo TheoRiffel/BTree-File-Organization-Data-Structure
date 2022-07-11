@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/theoriffel/Projeto_3'
+rm *.bin
+make: Leaving directory '/home/theoriffel/Projeto_3'
+ 

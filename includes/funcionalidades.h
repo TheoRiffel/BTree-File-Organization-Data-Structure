@@ -12,10 +12,14 @@
 #define ARQUIVO_CONSISTENTE '1'
 #define REGISTRO_REMOVIDO '1'
 #define NUM_PARAMETROS 7
+#define ORDEM_ARVORE 4
+#define NO_RAIZ '0'
+#define NO_INTERMEDIARIO '1'
+#define NO_FOLHA '2'
+#define NO_NAO_DEFINIDO '3'
 
 #include <stdlib.h>
 #include <stdio.h>
-
 
 typedef struct cabecalho
 {
@@ -99,6 +103,29 @@ typedef struct arquivo {
 	int tipo;
 	long int final;
 }arquivo_t;
+
+typedef struct cabecalhoBTree
+{
+	char status;
+	int noRaiz;
+	int proxRRN;
+	int nroNos;
+} cabecalhoBTree_t;
+
+typedef struct chave
+{
+	int id;
+	int RRN;
+	long long int byteOffset;
+} chave_t;
+
+typedef struct registroBTree
+{
+	char tipoNo;
+	int nroChaves;
+	chave_t chave[ORDEM_ARVORE - 1];
+	int ptr[ORDEM_ARVORE];
+} registroBTree_t;
 
 void createTable();
 void selectSemWhere();
