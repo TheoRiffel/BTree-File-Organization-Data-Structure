@@ -17,6 +17,8 @@
 #define NO_INTERMEDIARIO '1'
 #define NO_FOLHA '2'
 #define NO_NAO_DEFINIDO '3'
+#define TAM_REG_BTREE1 5 + ((ORDEM_ARVORE - 1) * 8) + (ORDEM_ARVORE * 4)
+#define TAM_REG_BTREE2 56 
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -123,6 +125,7 @@ typedef struct registroBTree
 {
 	char tipoNo;
 	int nroChaves;
+	int RRNregistroBTree;
 	chave_t chave[ORDEM_ARVORE - 1];
 	int ptr[ORDEM_ARVORE];
 } registroBTree_t;
