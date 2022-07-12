@@ -51,6 +51,7 @@ int main()
 	case 9:
 		break;
 	case 10:
+		busca();
 		break;
 	case 11:
 		break;

@@ -14,7 +14,8 @@ registroBTree_t *inicializarRegistroBTree();
 void liberarRegistroBTree(registroBTree_t* no);
 registroBTree_t* inicializarBTree();
 void escreverRegistroBTree(FILE* BTree_file, registroBTree_t* no, int tipo);
+void printaRegistroBTree(registroBTree_t *no, int tipo);
 registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo);
-chave_t* searchBTree(FILE* BTree_file,registroBTree_t* no, int chave, int tipo);
+chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo);
 
 #endif

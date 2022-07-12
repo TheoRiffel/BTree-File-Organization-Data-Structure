@@ -35,6 +35,7 @@ cabecalhoBTree_t* lerCabecalhoBTree(FILE* BTree_file, int tipo)
 	cabecalhoBTree_t* cab = malloc(sizeof(cabecalhoBTree_t));
 	fread(&cab->status, sizeof(char), 1, BTree_file);
 	fread(&cab->noRaiz, sizeof(int), 1, BTree_file);
+	fread(&cab->proxRRN, sizeof(int), 1, BTree_file);
 	fread(&cab->nroNos, sizeof(int), 1, BTree_file);
 	
 	int qnt_lixo = tipo == 1? (TAM_REG_BTREE1 - TAM_CABECALHO_BTREE): (TAM_REG_BTREE2 - TAM_CABECALHO_BTREE);
@@ -125,7 +126,7 @@ registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo)
 {
 	registroBTree_t* no = malloc(sizeof(registroBTree_t));
 
-	no->RRNregistroBTree = tipo == 1? (ftell(BTree_file) / TAM_REG_BTREE1) - 1: (ftell(BTree_file) / TAM_REG_BTREE2) - 1;
+	// no->RRNregistroBTree = tipo == 1? (ftell(BTree_file) / TAM_REG_BTREE1) - 1: (ftell(BTree_file) / TAM_REG_BTREE2) - 1;
 	fread(&no->tipoNo, sizeof(char), 1, BTree_file);
 	fread(&no->nroChaves, sizeof(int), 1, BTree_file);
 
@@ -144,6 +145,27 @@ registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo)
 	return no;
 }
 
+void printaRegistroBTree(registroBTree_t *no, int tipo)
+{
+	printf("tipo nó: %c\n", no->tipoNo);
+	printf("Nro Chaves: %d\n", no->nroChaves);
+
+	for (int i = 0; i < ORDEM_ARVORE - 1; i++)
+    {
+		printf("Chave nº %d, id: %d\n", i, no->chave[i].id);
+        if (tipo == 1)
+			printf("RRN: %d\n", no->chave[i].RRN);
+
+        else if (tipo == 2)
+			printf("BO: %d\n", no->chave[i].RRN);
+    }
+
+    for (int i = 0; i < ORDEM_ARVORE; i++)
+		printf("Ptr %d: %d\t", i, no->ptr[i]);
+
+	printf("\n\n");
+}	
+
 chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 {
 	if (RRN_no == -1)
@@ -154,9 +176,13 @@ chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 	else
 		fseek(BTree_file, (RRN_no * TAM_REG_BTREE2) + TAM_REG_BTREE2, SEEK_SET);
 
-	registroBTree_t *no = lerRegistroBTree(BTree_file, tipo);
+	printf("RRN de onde estou %d, %d, %d\n", RRN_no, TAM_REG_BTREE1, RRN_no * TAM_REG_BTREE1);
+	printf("onde estou %ld\n", ftell(BTree_file));
 
-	int chave_index = buscaBinariaChavesBTree(chave, no->chave, 0, ORDEM_ARVORE - 1);
+	registroBTree_t *no = lerRegistroBTree(BTree_file, tipo);
+	printaRegistroBTree(no, tipo);
+
+	int chave_index = buscaBinariaChavesBTree(chave, no->chave, 0, no->nroChaves - 1);
 
 	// se eu achar no nó atual
 	if (chave_index != -1) 
@@ -168,6 +194,9 @@ chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 	while (i < no->nroChaves && chave > no->chave[i].id)
 		i++;
 	proxRRNregisterBTree = no->ptr[i];
+
+	// liberarRegistroBTree(no);
+	free(no);
 
 	return searchBTree(BTree_file, proxRRNregisterBTree, chave, tipo);
 }

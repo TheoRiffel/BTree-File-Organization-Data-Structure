@@ -2,6 +2,7 @@
 #include "../includes/utils.h"
 #include "../includes/indexUtils.h"
 #include "../includes/fileUtils.h"
+#include "../includes/btreeUtils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -569,4 +570,29 @@ void update() {
     binarioNaTela(arq->nomeArqIndes);
 
     liberarStrctArq(arq);
+}
+
+void busca()
+{
+	FILE* BTree_file = fopen("indice5.bin", "rb");
+
+    printf("Oi\n");
+	
+    cabecalhoBTree_t *cab = lerCabecalhoBTree(BTree_file, 1);
+    printf("%ld\n", ftell(BTree_file));
+    registroBTree_t *reg = lerRegistroBTree(BTree_file, 1);
+    printaRegistroBTree(reg, 1);
+
+	chave_t *minhaChave = searchBTree(BTree_file, cab->noRaiz, 1, 1);
+
+	if (minhaChave == NULL) 
+		printf("nao achei kk\n");
+	else 
+	{
+		printf("achei! ");
+		printf("id: %d\nRRN arquivos de dados :%d\n", minhaChave->id, minhaChave->RRN);
+	}
+
+    free(cab);
+    free(reg);
 }

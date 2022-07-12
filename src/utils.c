@@ -536,7 +536,7 @@ int buscaBinaria(int chave, registroIndice_t* vetor, int esq, int dir)
  * @param dir 
  * @return int 
  */
-int buscaBinariaChavesBTree(int chave, chave_t* vetor, int esq, int dir)
+int buscaBinariaChavesBTree(int chave, chave_t vetor[], int esq, int dir)
 {
 	if (dir >= esq)
 	{
