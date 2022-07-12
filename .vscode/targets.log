@@ -5,9 +5,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
- 
 
-# Make data base, printed on Sun Jul 10 18:13:07 2022
+# Make data base, printed on Mon Jul 11 14:10:50 2022
 
 # Variables
 
@@ -39,7 +38,6 @@ BIN := ./bin
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
 _ = /home/theoriffel/.vscode-server/bin/92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9/node
- 
 # makefile (from 'Makefile', line 12)
 CFLAGS := -I./include -g
 # makefile (from 'Makefile', line 13)
@@ -57,7 +55,7 @@ VSCODE_CWD = /mnt/c/Users/theob/AppData/Local/Programs/Microsoft VS Code
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # makefile (from 'Makefile', line 8)
-OBJ_FILES := ./obj/funcionalidades.o ./obj/indexUtils.o ./obj/main.o ./obj/fileUtils.o ./obj/utils.o
+OBJ_FILES := ./obj/btreeUtils.o ./obj/funcionalidades.o ./obj/indexUtils.o ./obj/main.o ./obj/fileUtils.o ./obj/utils.o
 # environment
 PATH = /home/theoriffel/.vscode-server/bin/92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9/bin/remote-cli:/home/theoriffel/.local/bin:/home/theoriffel/.local/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/theob/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/theob/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Program Files/JetBrains/PyCharm Community Edition 2021.3.3/bin:/mnt/c/Program Files/JetBrains/IntelliJ IDEA Community Edition 2021.3.3/bin:/mnt/c/Users/theob/AppData/Local/GitHubDesktop/bin:/snap/bin
 # environment
@@ -65,7 +63,7 @@ XDG_RUNTIME_DIR = /mnt/wslg/runtime-dir
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-86ac42a4-ada7-496c-ab9a-ebb3fe88686d.sock
+VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-0de663d0-9a64-42de-be70-d427448f2f79.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -91,7 +89,7 @@ LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
 LOGNAME = theoriffel
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
@@ -136,7 +134,6 @@ MAKEFLAGS = pqrR
 MFLAGS = -pqrR
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
- 
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
@@ -154,7 +151,7 @@ HOSTTYPE = x86_64
 # automatic
 ^F = $(notdir $^)
 # makefile (from 'Makefile', line 7)
-SRC_FILES := ./src/funcionalidades.c ./src/indexUtils.c ./src/main.c ./src/fileUtils.c ./src/utils.c
+SRC_FILES := ./src/btreeUtils.c ./src/funcionalidades.c ./src/indexUtils.c ./src/main.c ./src/fileUtils.c ./src/utils.c
 # default
 SUFFIXES := 
 # environment
@@ -169,10 +166,8 @@ LANG = C
 TERM = xterm-256color
 # environment
 WSL_DISTRO_NAME = Ubuntu
-# environment
-MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=79/1024=8%, Rehash=0, Collisions=10/120=8%
+# Load=78/1024=8%, Rehash=0, Collisions=10/119=8%
 
 # Pattern-specific Variable Values
 
@@ -180,11 +175,11 @@ MOTD_SHOWN = update-motd
 
 # Directories
 
-# . (device 2080, inode 202926): 39 files, no impossibilities.
-# ./src (device 2080, inode 198096): 7 files, no impossibilities.
-# src (device 2080, inode 198096): 7 files, no impossibilities.
+# . (device 2080, inode 202926): 13 files, no impossibilities.
+# ./src (device 2080, inode 198096): 8 files, no impossibilities.
+# src (device 2080, inode 198096): 8 files, no impossibilities.
 
-# 53 files, no impossibilities in 3 directories.
+# 29 files, no impossibilities in 3 directories.
 
 # Implicit Rules
 
@@ -195,6 +190,13 @@ obj/%.o: src/%.c
 # 1 implicit rules, 0 (0.0%) terminal.
 
 # Files
+
+# Not a target:
+src/btreeUtils.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-11 01:36:30.259427913
+#  File has been updated.
+#  Successfully updated.
 
 obj/indexUtils.o: src/indexUtils.c
 #  Implicit rule search has been done.
@@ -273,6 +275,7 @@ src/fileUtils.c:
 #  Successfully updated.
 
 # makefile (from 'Makefile', line 39)
+ 
 time: CFLAGS += -DTIME
 time: bin/main
 #  Implicit rule search has not been done.
@@ -335,6 +338,15 @@ obj/utils.o: src/utils.c
 #  recipe to execute (from 'Makefile', line 26):
 	$(CC) $(CFLAGS) -c $< -o $@
 
+obj/btreeUtils.o: src/btreeUtils.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'btreeUtils'
+#  Last modified 2022-07-11 01:36:35.099427972
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # Not a target:
 src/funcionalidades.c:
 #  Implicit rule search has been done.
@@ -342,9 +354,9 @@ src/funcionalidades.c:
 #  File has been updated.
 #  Successfully updated.
 
-bin/main: obj/funcionalidades.o obj/indexUtils.o obj/main.o obj/fileUtils.o obj/utils.o
+bin/main: obj/btreeUtils.o obj/funcionalidades.o obj/indexUtils.o obj/main.o obj/fileUtils.o obj/utils.o
 #  Implicit rule search has not been done.
-#  Last modified 2022-07-10 00:03:06.556400185
+#  Last modified 2022-07-11 01:36:35.239427974
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 23):
@@ -369,19 +381,19 @@ valgrind: bin/main all
 	valgrind $(LEAKFLAGS) $(PROGRAM)
 
 # files hash-table stats:
-# Load=23/1024=2%, Rehash=0, Collisions=0/66=0%
+# Load=25/1024=2%, Rehash=0, Collisions=6/72=8%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 76 / storage = 803 B / avg = 10 B
-# current buf: size = 8162 B / used = 803 B / count = 76 / avg = 10 B
+# strcache buffers: 1 (0) / strings = 54 / storage = 522 B / avg = 9 B
+# current buf: size = 8162 B / used = 522 B / count = 54 / avg = 9 B
 
-# strcache performance: lookups = 110 / hit rate = 30%
+# strcache performance: lookups = 89 / hit rate = 39%
 # hash-table stats:
-# Load=76/8192=1%, Rehash=0, Collisions=2/110=2%
-# Finished Make data base on Sun Jul 10 18:13:07 2022
+# Load=54/8192=1%, Rehash=0, Collisions=2/89=2%
+# Finished Make data base on Mon Jul 11 14:10:50 2022
 
  

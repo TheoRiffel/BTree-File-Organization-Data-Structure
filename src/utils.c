@@ -526,6 +526,33 @@ int buscaBinaria(int chave, registroIndice_t* vetor, int esq, int dir)
 	return -1;
 }
 
+/**
+ * @brief busca binária das chaves no registro da BTree
+ * 
+ * @param chave 
+ * @param vetor 
+ * @param encontrado 
+ * @param esq 
+ * @param dir 
+ * @return int 
+ */
+int buscaBinariaChavesBTree(int chave, registroBTree_t* vetor, int *encontrado, int esq, int dir)
+{
+	if (dir >= esq)
+	{
+		int mid = esq + (dir - esq) / 2;
+
+		if (vetor[mid].chave->id == chave)
+			return mid;
+
+		if (vetor[mid].chave->id > chave)
+			return buscaBinaria(chave, vetor, esq, mid - 1);
+
+		return buscaBinaria(chave, vetor, mid + 1, dir);
+	}
+	return -1;
+}
+
 static void RecebeFiltros(int numFiltros, buscaParams_t* busca, FILE* arquivo)
 {
 

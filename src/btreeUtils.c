@@ -13,12 +13,15 @@
  * @param index : ponteiro para o arquivo
  * @param cabecalho : struct contendo os dados do cabe�alho
  */
-void escreverCabecalhoBTree(FILE* BTree_file, cabecalhoBTree_t* cabecalho)
+void escreverCabecalhoBTree(FILE* BTree_file, cabecalhoBTree_t* cabecalho, int tipo)
 {
 	fseek(BTree_file, 0, SEEK_SET);
 	fwrite(&cabecalho->status, sizeof(char), 1, BTree_file);
 	fwrite(&cabecalho->noRaiz, sizeof(char), 1, BTree_file);
 	fwrite(&cabecalho->nroNos, sizeof(char), 1, BTree_file);
+
+	int qnt_lixo = tipo == 1? 32 : 44;
+	fwrite("$", sizeof(char), qnt_lixo, BTree_file);
 }
 
 /**
@@ -27,20 +30,25 @@ void escreverCabecalhoBTree(FILE* BTree_file, cabecalhoBTree_t* cabecalho)
  * @param index : ponteiro para o arquivo
  * @return cabecalhoBTree_t : struct contendo os dados do cabe�alho
  */
-cabecalhoBTree_t* lerCabecalhoBTree(FILE* BTree_file)
+cabecalhoBTree_t* lerCabecalhoBTree(FILE* BTree_file, int tipo)
 {
 	cabecalhoBTree_t* cab = malloc(sizeof(cabecalhoBTree_t));
 	fread(&cab->status, sizeof(char), 1, BTree_file);
 	fread(&cab->noRaiz, sizeof(int), 1, BTree_file);
 	fread(&cab->nroNos, sizeof(int), 1, BTree_file);
+	
+	int qnt_lixo = tipo == 1? 32 : 44;
+	fseek(BTree_file, qnt_lixo, SEEK_CUR);
+
 	return cab;
 }
 
-registroBTree_t *inicializarRegistroBTree(){
-
+registroBTree_t *inicializarRegistroBTree()
+{
 	registroBTree_t* no = malloc(sizeof(registroBTree_t));
 	no->tipoNo = NO_NAO_DEFINIDO;
 	no->nroChaves = 0;
+	no->RRNregistroBTree = -1;
 	
 	for (int i = 0; i < ORDEM_ARVORE - 1; i++) 
 	{
@@ -50,9 +58,7 @@ registroBTree_t *inicializarRegistroBTree(){
 	}
 
 	for (int i = 0; i < ORDEM_ARVORE; i++)
-	{
 		no->ptr[i] = -1;
-	} 
 
 	return no;
 }
@@ -76,6 +82,7 @@ registroBTree_t* inicializarBTree()
 {
 	registroBTree_t* raiz = inicializarRegistroBTree();
 	raiz->tipoNo = NO_RAIZ;
+	raiz->RRNregistroBTree = 0;
 
 	return raiz;
 }
@@ -117,6 +124,8 @@ void escreverRegistroBTree(FILE* BTree_file, registroBTree_t* no, int tipo)
 registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo)
 {
 	registroBTree_t* no = malloc(sizeof(registroBTree_t));
+
+	no->RRNregistroBTree = tipo == 1? (ftell(BTree_file) / TAM_REG_BTREE1) - 1: (ftell(BTree_file) / TAM_REG_BTREE2) - 1;
 	fread(&no->tipoNo, sizeof(char), 1, BTree_file);
 	fread(&no->nroChaves, sizeof(int), 1, BTree_file);
 
@@ -133,4 +142,25 @@ registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo)
         fread(&no->ptr[i], sizeof(int), 1, BTree_file);
 
 	return no;
+}
+
+chave_t* searchBTree(FILE* BTree_file,registroBTree_t* no, int chave, int tipo)
+{
+	if (no->RRNregistroBTree == -1)
+		return NULL;
+
+	int encontrado;
+	// int chave_index = buscaBinaria(chave, no->chave, 0, ORDEM_ARVORE - 1);
+
+	// se eu achar no nó atual
+	// if (chave_index != -1) 
+		// return &no->chave[chave_index];
+	
+	//se eu não achar
+	// int proxRRNregisterBTree = 	
+
+
+	
+
+	//
 }
