@@ -23,6 +23,7 @@ bool confereArquivos(FILE* a, FILE* b);
 bool arquivoConsistente(char status);
 void liberaStrings(char* a, char* b, char* c);
 int buscaBinaria(int chave, registroIndice_t* vetor, int esq, int dir);
+int buscaBinariaChavesBTree(int chave, chave_t* vetor, int esq, int dir);
 int compara(const void* reg1, const void* reg2);
 void liberaMemSelect(int delCab, char* tArq, char* aEnt, FILE* fptr, cabecalho_t* cab);
 int campoEstaPreenchido(char codigo, registro_t* reg);

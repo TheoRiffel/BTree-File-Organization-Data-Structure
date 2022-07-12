@@ -19,7 +19,8 @@
 int main()
 {
 	int funcionalidade;
-	printf("%d", TAM_REG_BTREE1);
+	printf("%d\n", TAM_REG_BTREE1);
+	printf("%d\n", TAM_REG_BTREE2);
 	scanf("%d ", &funcionalidade);
 	switch(funcionalidade)
 	{
@@ -54,6 +55,8 @@ int main()
 	case 11:
 		break;
 	case 12:
+		break;
+	default:
 		break;
 	}
 

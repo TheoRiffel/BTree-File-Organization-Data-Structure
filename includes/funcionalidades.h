@@ -17,8 +17,9 @@
 #define NO_INTERMEDIARIO '1'
 #define NO_FOLHA '2'
 #define NO_NAO_DEFINIDO '3'
+#define TAM_CABECALHO_BTREE 13
 #define TAM_REG_BTREE1 5 + ((ORDEM_ARVORE - 1) * 8) + (ORDEM_ARVORE * 4)
-#define TAM_REG_BTREE2 56 
+#define TAM_REG_BTREE2 5 + ((ORDEM_ARVORE - 1) * 12) + (ORDEM_ARVORE * 4)
 
 #include <stdlib.h>
 #include <stdio.h>

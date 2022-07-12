@@ -37,7 +37,7 @@ cabecalhoBTree_t* lerCabecalhoBTree(FILE* BTree_file, int tipo)
 	fread(&cab->noRaiz, sizeof(int), 1, BTree_file);
 	fread(&cab->nroNos, sizeof(int), 1, BTree_file);
 	
-	int qnt_lixo = tipo == 1? 32 : 44;
+	int qnt_lixo = tipo == 1? (TAM_REG_BTREE1 - TAM_CABECALHO_BTREE): (TAM_REG_BTREE2 - TAM_CABECALHO_BTREE);
 	fseek(BTree_file, qnt_lixo, SEEK_CUR);
 
 	return cab;
@@ -144,23 +144,30 @@ registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo)
 	return no;
 }
 
-chave_t* searchBTree(FILE* BTree_file,registroBTree_t* no, int chave, int tipo)
+chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 {
-	if (no->RRNregistroBTree == -1)
+	if (RRN_no == -1)
 		return NULL;
 
-	int encontrado;
-	// int chave_index = buscaBinaria(chave, no->chave, 0, ORDEM_ARVORE - 1);
+	if (tipo == 1)
+		fseek(BTree_file, (RRN_no * TAM_REG_BTREE1) + TAM_REG_BTREE1, SEEK_SET);
+	else
+		fseek(BTree_file, (RRN_no * TAM_REG_BTREE2) + TAM_REG_BTREE2, SEEK_SET);
+
+	registroBTree_t *no = lerRegistroBTree(BTree_file, tipo);
+
+	int chave_index = buscaBinariaChavesBTree(chave, no->chave, 0, ORDEM_ARVORE - 1);
 
 	// se eu achar no nó atual
-	// if (chave_index != -1) 
-		// return &no->chave[chave_index];
+	if (chave_index != -1) 
+		return &no->chave[chave_index];
 	
-	//se eu não achar
-	// int proxRRNregisterBTree = 	
+	//se eu não achar, procuro em qual filho a minha chave hipoteticamente estaria
+	int proxRRNregisterBTree;
+	int i = 0;
+	while (i < no->nroChaves && chave > no->chave[i].id)
+		i++;
+	proxRRNregisterBTree = no->ptr[i];
 
-
-	
-
-	//
+	return searchBTree(BTree_file, proxRRNregisterBTree, chave, tipo);
 }
