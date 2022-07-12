@@ -157,7 +157,7 @@ void printaRegistroBTree(registroBTree_t *no, int tipo)
 			printf("RRN: %d\n", no->chave[i].RRN);
 
         else if (tipo == 2)
-			printf("BO: %d\n", no->chave[i].RRN);
+			printf("BO: %lld\n", no->chave[i].byteOffset);
     }
 
     for (int i = 0; i < ORDEM_ARVORE; i++)
@@ -176,11 +176,8 @@ chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 	else
 		fseek(BTree_file, (RRN_no * TAM_REG_BTREE2) + TAM_REG_BTREE2, SEEK_SET);
 
-	printf("RRN de onde estou %d, %d, %d\n", RRN_no, TAM_REG_BTREE1, RRN_no * TAM_REG_BTREE1);
-	printf("onde estou %ld\n", ftell(BTree_file));
-
 	registroBTree_t *no = lerRegistroBTree(BTree_file, tipo);
-	printaRegistroBTree(no, tipo);
+	// printaRegistroBTree(no, tipo);
 
 	int chave_index = buscaBinariaChavesBTree(chave, no->chave, 0, no->nroChaves - 1);
 

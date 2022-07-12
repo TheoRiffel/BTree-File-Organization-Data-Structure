@@ -19,8 +19,6 @@
 int main()
 {
 	int funcionalidade;
-	printf("%d\n", TAM_REG_BTREE1);
-	printf("%d\n", TAM_REG_BTREE2);
 	scanf("%d ", &funcionalidade);
 	switch(funcionalidade)
 	{
