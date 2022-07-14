@@ -13,13 +13,16 @@
 #define REGISTRO_REMOVIDO '1'
 #define NUM_PARAMETROS 7
 #define ORDEM_ARVORE 4
+#define TAXA_OCUPACAO (ORDEM_ARVORE - 1)
+#define TAXA_MINIMA ((int)(ORDEM_ARVORE / 2))
+#define REFERENCIA_NULA -1
 #define NO_RAIZ '0'
 #define NO_INTERMEDIARIO '1'
 #define NO_FOLHA '2'
 #define NO_NAO_DEFINIDO '3'
 #define TAM_CABECALHO_BTREE 13
-#define TAM_REG_BTREE1 (5 + ((ORDEM_ARVORE - 1) * 8) + (ORDEM_ARVORE * 4))
-#define TAM_REG_BTREE2 (5 + ((ORDEM_ARVORE - 1) * 12) + (ORDEM_ARVORE * 4))
+#define TAM_REG_BTREE1 (5 + ((TAXA_OCUPACAO) * 8) + (ORDEM_ARVORE * 4))
+#define TAM_REG_BTREE2 (5 + ((TAXA_OCUPACAO) * 12) + (ORDEM_ARVORE * 4))
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -127,7 +130,7 @@ typedef struct registroBTree
 	char tipoNo;
 	int nroChaves;
 	int RRNregistroBTree;
-	chave_t chave[ORDEM_ARVORE - 1];
+	chave_t chave[TAXA_OCUPACAO];
 	int ptr[ORDEM_ARVORE];
 } registroBTree_t;
 
