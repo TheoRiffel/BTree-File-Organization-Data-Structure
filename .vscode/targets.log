@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jul 12 16:18:42 2022
+# Make data base, printed on Wed Jul 13 11:06:20 2022
 
 # Variables
 
@@ -15,7 +15,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # automatic
 ?F = $(notdir $?)
 # environment
-WSLENV = VSCODE_WSL_EXT_LOCATION/up
+WSLENV = VSCODE_WSL_EXT_LOCATION/up:VSCODE_SERVER_TAR/up
 # default
 .SHELLFLAGS := -c
 # makefile (from 'Makefile', line 4)
@@ -37,7 +37,7 @@ BIN := ./bin
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /home/theoriffel/.vscode-server/bin/92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9/node
+_ = /home/theoriffel/.vscode-server/bin/b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a/node
 # makefile (from 'Makefile', line 12)
 CFLAGS := -I./include -g
 # makefile (from 'Makefile', line 13)
@@ -57,13 +57,15 @@ MAKE_HOST := x86_64-pc-linux-gnu
 # makefile (from 'Makefile', line 8)
 OBJ_FILES := ./obj/btreeUtils.o ./obj/funcionalidades.o ./obj/indexUtils.o ./obj/main.o ./obj/fileUtils.o ./obj/utils.o
 # environment
-PATH = /home/theoriffel/.vscode-server/bin/92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9/bin/remote-cli:/home/theoriffel/.local/bin:/home/theoriffel/.local/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/theob/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/theob/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Program Files/JetBrains/PyCharm Community Edition 2021.3.3/bin:/mnt/c/Program Files/JetBrains/IntelliJ IDEA Community Edition 2021.3.3/bin:/mnt/c/Users/theob/AppData/Local/GitHubDesktop/bin:/snap/bin
+PATH = /home/theoriffel/.vscode-server/bin/b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a/bin/remote-cli:/home/theoriffel/.local/bin:/home/theoriffel/.local/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/theob/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/theob/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Program Files/JetBrains/PyCharm Community Edition 2021.3.3/bin:/mnt/c/Program Files/JetBrains/IntelliJ IDEA Community Edition 2021.3.3/bin:/mnt/c/Users/theob/AppData/Local/GitHubDesktop/bin:/snap/bin
 # environment
 XDG_RUNTIME_DIR = /mnt/wslg/runtime-dir
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-9a0cd734-1df8-4a5d-9fd0-2923b03628af.sock
+VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-c92446e1-d2cb-4cbc-8e92-5ecc0f182825.sock
+# environment
+VSCODE_SERVER_TAR = /mnt/c/Users/theob/AppData/Local/Temp/vscode-remote-wsl/b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a/vscode-server-stable-linux-x64.tar.gz
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -77,7 +79,7 @@ PWD = /home/theoriffel/Projeto_3
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/22_interop
+WSL_INTEROP = /run/WSL/14_interop
 # environment
 PULSE_SERVER = /mnt/wslg/PulseServer
 # environment
@@ -169,7 +171,7 @@ WSL_DISTRO_NAME = Ubuntu
 # environment
 MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=79/1024=8%, Rehash=0, Collisions=10/125=8%
+# Load=80/1024=8%, Rehash=0, Collisions=10/121=8%
 
 # Pattern-specific Variable Values
 
@@ -196,15 +198,18 @@ obj/%.o: src/%.c
 # Not a target:
 src/btreeUtils.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-07-11 23:52:51.349523445
+#  Last modified 2022-07-12 20:49:31.740564398
 #  File has been updated.
 #  Successfully updated.
 
-# Not a target:
-obj/indexUtils.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+obj/indexUtils.o: src/indexUtils.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'indexUtils'
+#  Last modified 2022-07-12 16:40:54.950382308
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clear:
 #  Implicit rule search has not been done.
@@ -218,15 +223,16 @@ all: bin/main
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
-#  Needs to be updated (-q is set).
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/5=0%
+#  Successfully updated.
 
-# Not a target:
-obj/fileUtils.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+obj/fileUtils.o: src/fileUtils.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'fileUtils'
+#  Last modified 2022-07-11 23:47:25.149519463
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) -c $< -o $@
 
 zip:
 #  Implicit rule search has not been done.
@@ -242,11 +248,14 @@ cpy:
 #  recipe to execute (from 'Makefile', line 18):
 	cp arquivos/antes/* ./
 
-# Not a target:
-obj/main.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+obj/main.o: src/main.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'main'
+#  Last modified 2022-07-12 20:51:34.320565894
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Not a target:
 Makefile:
@@ -254,6 +263,21 @@ Makefile:
 #  Last modified 2022-07-09 20:35:16.646247965
 #  File has been updated.
 #  Successfully updated.
+
+# Not a target:
+src/indexUtils.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-12 16:40:27.530381974
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+src/fileUtils.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-11 23:47:19.629519396
+#  File has been updated.
+#  Successfully updated.
+ 
 
 # makefile (from 'Makefile', line 39)
 time: CFLAGS += -DTIME
@@ -266,17 +290,26 @@ time: bin/main
 #  recipe to execute (from 'Makefile', line 41):
 	$<
 
+obj/funcionalidades.o: src/funcionalidades.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'funcionalidades'
+#  Last modified 2022-07-12 20:51:23.550565763
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # Not a target:
-obj/funcionalidades.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+src/main.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-12 20:51:32.500565872
+#  File has been updated.
+#  Successfully updated.
 
 # Not a target:
 .DEFAULT:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
- 
 #  File has not been updated.
 
 rem:
@@ -300,48 +333,45 @@ clean: rem
 #  recipe to execute (from 'Makefile', line 34):
 	rm -rf $(PROGRAM) $(OBJ_FILES)
 
-# Not a target:
-obj/utils.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+obj/utils.o: src/utils.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'utils'
+#  Last modified 2022-07-12 17:31:33.900419405
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/btreeUtils.o: src/btreeUtils.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'btreeUtils'
-#  Last modified 2022-07-11 23:47:25.019519462
+#  Last modified 2022-07-12 20:49:36.510564456
 #  File has been updated.
-#  Needs to be updated (-q is set).
-# automatic
-# @ := obj/btreeUtils.o
-# automatic
-# % := 
-# automatic
-# * := btreeUtils
-# automatic
-# + := src/btreeUtils.c
-# automatic
-# | := 
-# automatic
-# < := src/btreeUtils.c
-# automatic
-# ^ := src/btreeUtils.c
-# automatic
-# ? := src/btreeUtils.c
-# variable set hash-table stats:
-# Load=8/32=25%, Rehash=0, Collisions=1/15=7%
+#  Successfully updated.
 #  recipe to execute (from 'Makefile', line 26):
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Not a target:
+src/funcionalidades.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-12 20:51:21.090565733
+#  File has been updated.
+#  Successfully updated.
+
 bin/main: obj/btreeUtils.o obj/funcionalidades.o obj/indexUtils.o obj/main.o obj/fileUtils.o obj/utils.o
 #  Implicit rule search has not been done.
-#  Last modified 2022-07-11 23:50:36.749521802
+#  Last modified 2022-07-12 20:51:34.400565895
 #  File has been updated.
-#  Needs to be updated (-q is set).
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/5=0%
+#  Successfully updated.
 #  recipe to execute (from 'Makefile', line 23):
 	$(CC) $(CFLAGS) $^ -o $@
+
+# Not a target:
+src/utils.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-12 17:31:31.790419379
+#  File has been updated.
+#  Successfully updated.
 
 # makefile (from 'Makefile', line 43)
 valgrind: CFLAGS += -g
@@ -355,19 +385,19 @@ valgrind: bin/main all
 	valgrind $(LEAKFLAGS) $(PROGRAM)
 
 # files hash-table stats:
-# Load=20/1024=2%, Rehash=0, Collisions=1/52=2%
+# Load=25/1024=2%, Rehash=0, Collisions=6/72=8%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 44 / storage = 396 B / avg = 9 B
-# current buf: size = 8162 B / used = 396 B / count = 44 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 54 / storage = 522 B / avg = 9 B
+# current buf: size = 8162 B / used = 522 B / count = 54 / avg = 9 B
 
-# strcache performance: lookups = 74 / hit rate = 40%
+# strcache performance: lookups = 89 / hit rate = 39%
 # hash-table stats:
-# Load=44/8192=1%, Rehash=0, Collisions=2/74=3%
-# Finished Make data base on Tue Jul 12 16:18:42 2022
+# Load=54/8192=1%, Rehash=0, Collisions=2/89=2%
+# Finished Make data base on Wed Jul 13 11:06:20 2022
 
  
