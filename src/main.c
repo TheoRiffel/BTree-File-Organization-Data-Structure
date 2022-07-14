@@ -53,8 +53,7 @@ int main()
 		busca();
 		break;
 	case 11:
-		break;
-	case 12:
+		insertFile();
 		break;
 	default:
 		break;

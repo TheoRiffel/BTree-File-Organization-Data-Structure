@@ -622,7 +622,7 @@ void createBTreeIndex()
     cabecalhoBTree->status = ARQUIVO_INCONSISTENTE;
     escreverCabecalhoBTree(bTree_fptr, cabecalhoBTree, tipo);
 
-    registroBTree_t* raiz = inicializarBTree();
+    registroBTree_t* raiz = inicializarBTree(bTree_fptr, tipo);
 
     char buffer;
     while (fread(&buffer, 1, 1, dados) != 0)
@@ -642,24 +642,23 @@ void createBTreeIndex()
             continue;
         }
 
-        chave_t* chave = malloc(sizeof(chave_t));
-        chave->id = registro->id;
-        if (tipo == 1) chave->RRN = ((ftell(dados) - TAM_CABECALHO1) / TAM_REG) - 1;
-        else if (tipo == 2) chave->byteOffset = ftell(dados) - registro->tamRegistro - 5;
+        chave_t chave;
+        chave.id = registro->id;
+        if (tipo == 1) chave.RRN = ((ftell(dados) - TAM_CABECALHO1) / TAM_REG) - 1;
+        else if (tipo == 2) chave.byteOffset = ftell(dados) - registro->tamRegistro - 5;
 
-        insertBtree(bTree_fptr, cabecalhoBTree, cabecalhoBTree->noRaiz, int* RRNPromovido, chave, tipo);
+        insert2(cabecalhoBTree, bTree_fptr, cabecalhoBTree->noRaiz, chave, NULL, NULL, tipo);
 
         liberaRegistro(registro);
-        free(registroIndice);
     }
 
     cabecalhoBTree->status = ARQUIVO_CONSISTENTE;
     escreverCabecalhoBTree(bTree_fptr, cabecalhoBTree, tipo);
 
     fclose(dados);
-    fclose(index_fptr);
+    fclose(bTree_fptr);
 
-    binarioNaTela(arquivoIndice);
+    binarioNaTela(arquivoBTree);
 
     free(cabecalhoBTree);
     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
@@ -681,40 +680,53 @@ void insertFile()
     FILE* dados = fopen(arquivoDados, "rb");
     FILE* BTree_file = fopen(arquivoBTree, "w+b");
 
-     if (confereArquivos(dados, BTree_file) == false)
-     {
-         liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
-         return;
-     }
+    if (confereArquivos(dados, BTree_file) == false)
+    {
+        liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+        return;
+    }
 
-     cabecalho_t* cabecalho = NULL;
-     if (tipo == 1) cabecalho = lerCabecalho(1, dados);
-     else if (tipo == 2) cabecalho = lerCabecalho(2, dados);
-     else return;
-    
-     if (arquivoConsistente(cabecalho->status) == false)
-     {
-         fclose(dados);
-         free(cabecalho);
-         liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
-         return;
-     }
-	
+    cabecalho_t* cabecalho = NULL;
+    if (tipo == 1) cabecalho = lerCabecalho(1, dados);
+    else if (tipo == 2) cabecalho = lerCabecalho(2, dados);
+    else return;
+
+    if (arquivoConsistente(cabecalho->status) == false)
+    {
+        fclose(dados);
+        free(cabecalho);
+        liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+        return;
+    }
+
     cabecalhoBTree_t *cabecalhoBTree = lerCabecalhoBTree(BTree_file, tipo);
 
-     if (arquivoConsistente(cabecalhoBTree->status) == false)
-     {
-         fclose(dados);
-         fclose(BTree_file);
-         free(cabecalho);
-         free(cabecalhoBTree);
-         liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
-         return;
-     }
+    // if (arquivoConsistente(cabecalhoBTree->status) == false)
+    // {
+    //     fclose(dados);
+    //     fclose(BTree_file);
+    //     free(cabecalho);
+    //     free(cabecalhoBTree);
+    //     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+    //     return;
+    // }
 
-    if (cabecalhoBTree->noRaiz == -1){
-        registroBTree_t *raiz = inicializarBTree();
-    }
+    chave_t chave;
+    chave.id = 12615165;
+    chave.RRN = 0;
+    chave.byteOffset = 0;
+    insertBTree(BTree_file, cabecalhoBTree, chave, tipo);
+
+    cabecalhoBTree->status = ARQUIVO_CONSISTENTE;
+    escreverCabecalhoBTree(BTree_file, cabecalhoBTree, tipo);
+
+    fclose(dados);
+    fclose(BTree_file);
+
+    binarioNaTela(arquivoBTree);
+
+    free(cabecalhoBTree);
+    liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
 
 }
 

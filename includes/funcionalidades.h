@@ -142,6 +142,8 @@ void createIndex();
 void delete();
 void insertInto();
 void update();
+void createBTreeIndex();
+void insertFile();
 void busca();
 
 #endif
