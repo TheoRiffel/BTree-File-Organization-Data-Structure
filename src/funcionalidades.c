@@ -572,6 +572,68 @@ void update() {
     liberarStrctArq(arq);
 }
 
+void insertBtree()
+{
+
+    char* tipoArquivo = readUntil(stdin, ' ');
+    // char* arquivoDados = readUntil(stdin, ' ');
+    char* arquivoBTree = readUntil(stdin, ' ');
+
+    // definindo tipo do arquivo
+    int tipo = 0;
+    if (strcmp(tipoArquivo, "tipo1") == TIPOS_IGUAIS) tipo = 1;
+    else if (strcmp(tipoArquivo, "tipo2") == TIPOS_IGUAIS) tipo = 2;
+
+// abrir e conferir os arquivos
+    // FILE* dados = fopen(arquivoDados, "rb");
+    FILE* BTree_file = fopen(arquivoBTree, "w+b");
+
+    // if (confereArquivos(dados, BTree_file) == false)
+    // {
+    //     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+    //     return;
+    // }
+
+    // cabecalho_t* cabecalho = NULL;
+    // if (tipo == 1)
+    //     cabecalho = lerCabecalho(1, dados);
+    // else if (tipo == 2)
+    //     cabecalho = lerCabecalho(2, dados);
+    // else
+    //     return;
+    
+    // if (arquivoConsistente(cabecalho->status) == false)
+    // {
+    //     fclose(dados);
+    //     free(cabecalho);
+    //     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+    //     return;
+    // }
+	
+    cabecalhoBTree_t *cabecalhoBTree = lerCabecalhoBTree(BTree_file, 1);
+
+    // if (arquivoConsistente(cabecalhoBTree->status) == false)
+    // {
+    //     // fclose(dados);
+    //     fclose(BTree_file);
+    //     // free(cabecalho);
+    //     free(cabecalhoBTree);
+    //     // liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+    //     return;
+    // }
+
+    
+
+    if (cabecalhoBTree->noRaiz == -1){
+        registroBTree_t *raiz = inicializarBTree();
+    }
+
+
+
+
+
+}
+
 void busca()
 {
     // leitura da entrada
