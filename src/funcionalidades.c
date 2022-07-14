@@ -572,11 +572,104 @@ void update() {
     liberarStrctArq(arq);
 }
 
-void insertBtree()
+void createBTreeIndex()
 {
-
+    //leitura da entrada
     char* tipoArquivo = readUntil(stdin, ' ');
-    // char* arquivoDados = readUntil(stdin, ' ');
+    char* arquivoDados = readUntil(stdin, ' ');
+    char* arquivoBTree = readUntil(stdin, '\n');
+
+    //definindo tipo do arquivo
+    int tipo = 0;
+    if (strcmp(tipoArquivo, "tipo1") == TIPOS_IGUAIS) tipo = 1;
+    else if (strcmp(tipoArquivo, "tipo2") == TIPOS_IGUAIS) tipo = 2;
+
+    //abrindo e conferindo arquivos
+    FILE* dados = fopen(arquivoDados, "rb");
+    FILE* bTree_fptr = fopen(arquivoBTree, "wb");
+
+    if (confereArquivos(dados, bTree_fptr) == false)
+    {
+        liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+        return;
+    }
+
+    cabecalho_t* cabecalho = NULL;
+    if (tipo == 1)
+        cabecalho = lerCabecalho(1, dados);
+
+    else if (tipo == 2)
+        cabecalho = lerCabecalho(2, dados);
+
+    if (arquivoConsistente(cabecalho->status) == false)
+    {
+        fclose(dados);
+        free(cabecalho);
+        liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+        return;
+    }
+    long int final;
+
+    if (tipo == 1)
+        final = ((cabecalho->proxRRN * TAM_REG) + TAM_CABECALHO1);
+
+    else if (tipo == 2)
+        final = cabecalho->proxByteOffset;
+
+    free(cabecalho);
+
+    cabecalhoBTree_t* cabecalhoBTree = malloc(sizeof(cabecalhoIndex_t));
+    cabecalhoBTree->status = ARQUIVO_INCONSISTENTE;
+    escreverCabecalhoBTree(bTree_fptr, cabecalhoBTree, tipo);
+
+    registroBTree_t* raiz = inicializarBTree();
+
+    char buffer;
+    while (fread(&buffer, 1, 1, dados) != 0)
+    {
+        ungetc(buffer, dados);
+
+        registro_t* registro = NULL;
+        if (tipo == 1)
+            registro = lerRegistro(1, dados, final);
+
+        else if (tipo == 2)
+            registro = lerRegistro(2, dados, final);
+
+        if (registro->removido == REGISTRO_REMOVIDO)
+        {
+            liberaRegistro(registro);
+            continue;
+        }
+
+        chave_t* chave = malloc(sizeof(chave_t));
+        chave->id = registro->id;
+        if (tipo == 1) chave->RRN = ((ftell(dados) - TAM_CABECALHO1) / TAM_REG) - 1;
+        else if (tipo == 2) chave->byteOffset = ftell(dados) - registro->tamRegistro - 5;
+
+        insertBtree(bTree_fptr, cabecalhoBTree, cabecalhoBTree->noRaiz, int* RRNPromovido, chave, tipo);
+
+        liberaRegistro(registro);
+        free(registroIndice);
+    }
+
+    cabecalhoBTree->status = ARQUIVO_CONSISTENTE;
+    escreverCabecalhoBTree(bTree_fptr, cabecalhoBTree, tipo);
+
+    fclose(dados);
+    fclose(index_fptr);
+
+    binarioNaTela(arquivoIndice);
+
+    free(cabecalhoBTree);
+    liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+}
+
+void insertFile()
+{
+    // leitura de entrada
+    char* tipoArquivo = readUntil(stdin, ' ');
+    char* arquivoDados = readUntil(stdin, ' ');
     char* arquivoBTree = readUntil(stdin, ' ');
 
     // definindo tipo do arquivo
@@ -584,53 +677,44 @@ void insertBtree()
     if (strcmp(tipoArquivo, "tipo1") == TIPOS_IGUAIS) tipo = 1;
     else if (strcmp(tipoArquivo, "tipo2") == TIPOS_IGUAIS) tipo = 2;
 
-// abrir e conferir os arquivos
-    // FILE* dados = fopen(arquivoDados, "rb");
+    // abrir e conferir os arquivos
+    FILE* dados = fopen(arquivoDados, "rb");
     FILE* BTree_file = fopen(arquivoBTree, "w+b");
 
-    // if (confereArquivos(dados, BTree_file) == false)
-    // {
-    //     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
-    //     return;
-    // }
+     if (confereArquivos(dados, BTree_file) == false)
+     {
+         liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+         return;
+     }
 
-    // cabecalho_t* cabecalho = NULL;
-    // if (tipo == 1)
-    //     cabecalho = lerCabecalho(1, dados);
-    // else if (tipo == 2)
-    //     cabecalho = lerCabecalho(2, dados);
-    // else
-    //     return;
+     cabecalho_t* cabecalho = NULL;
+     if (tipo == 1) cabecalho = lerCabecalho(1, dados);
+     else if (tipo == 2) cabecalho = lerCabecalho(2, dados);
+     else return;
     
-    // if (arquivoConsistente(cabecalho->status) == false)
-    // {
-    //     fclose(dados);
-    //     free(cabecalho);
-    //     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
-    //     return;
-    // }
+     if (arquivoConsistente(cabecalho->status) == false)
+     {
+         fclose(dados);
+         free(cabecalho);
+         liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+         return;
+     }
 	
-    cabecalhoBTree_t *cabecalhoBTree = lerCabecalhoBTree(BTree_file, 1);
+    cabecalhoBTree_t *cabecalhoBTree = lerCabecalhoBTree(BTree_file, tipo);
 
-    // if (arquivoConsistente(cabecalhoBTree->status) == false)
-    // {
-    //     // fclose(dados);
-    //     fclose(BTree_file);
-    //     // free(cabecalho);
-    //     free(cabecalhoBTree);
-    //     // liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
-    //     return;
-    // }
-
-    
+     if (arquivoConsistente(cabecalhoBTree->status) == false)
+     {
+         fclose(dados);
+         fclose(BTree_file);
+         free(cabecalho);
+         free(cabecalhoBTree);
+         liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
+         return;
+     }
 
     if (cabecalhoBTree->noRaiz == -1){
         registroBTree_t *raiz = inicializarBTree();
     }
-
-
-
-
 
 }
 

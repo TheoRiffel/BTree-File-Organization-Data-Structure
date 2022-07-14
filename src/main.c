@@ -47,6 +47,7 @@ int main()
 		update();
 		break;
 	case 9:
+		createBTreeIndex();
 		break;
 	case 10:
 		busca();
