@@ -41,5 +41,5 @@ time: $(PROGRAM)
 	$<
 
 valgrind: CFLAGS += -g
-valgrind: $(PROGRAM) all
+valgrind: $(PROGRAM) all rem cpy
 	valgrind $(LEAKFLAGS) $(PROGRAM)
