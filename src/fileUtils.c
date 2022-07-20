@@ -1155,12 +1155,15 @@ void insereRegistroDados(FILE* dados, registro_t* reg, cabecalho_t* cab, int tip
 	if (tipo == 1)
 	{
 		int posicao = cab->topoA;
+		printf("topo de novo :%d\n proxrrn: %d\n", cab->topoA, cab->proxRRN);
 		if(posicao != -1) // caso tenha removidos, inserir lá e modificar a pilha
 		{
 			fseek(dados, (posicao * TAM_REG) + TAM_CABECALHO1 + 1, SEEK_SET);
 			int novoTopo;
 			fread(&novoTopo, sizeof(int), 1, dados);
+			printf("NOVO TOPO: %d\n", novoTopo);
 			fseek(dados, -(sizeof(int) + 1), SEEK_CUR);
+			printf("ftell: %ld\n", ftell(dados));
 			chave->RRN = cab->topoA;
 			cab->topoA = novoTopo;
 		}
@@ -1185,7 +1188,6 @@ void insereRegistroDados(FILE* dados, registro_t* reg, cabecalho_t* cab, int tip
 				fseek(dados, -(sizeof(long int) + sizeof(long int) + 1), SEEK_CUR);
 				chave->byteOffset = cab->topoB;
 				cab->topoB = novoTopo;
-				cab->nroRegRem--;
 			}
 			else // se não, vai para o fim do arquivo
 			{
