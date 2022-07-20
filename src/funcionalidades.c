@@ -683,7 +683,7 @@ void insertFile()
     }
 
     cabecalho_t* cabecalho = lerCabecalho(tipo, dados);
-    printf("topo: %d\n", cabecalho->topoA);
+   
     if (arquivoConsistente(cabecalho->status) == false)
     {
         fclose(dados);
@@ -712,9 +712,9 @@ void insertFile()
     for (int i = 0; i < numInserts; i++)
     {
         registro_t* reg = lerRegistroStdin(tipo);
+        reg->removido = '0';
         chave_t chave;
         chave.id = reg->id;
-        printf("ID : %d\n", chave.id);
 
         insereRegistroDados(dados, reg, cabecalho, tipo, &chave);
         insertBTree(BTree_file, cabecalhoBTree, chave, tipo);

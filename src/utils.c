@@ -224,6 +224,8 @@ void liberar(registro_t* r)
 registro_t* inicializarRegistro()
 {
 	registro_t* reg = malloc(sizeof(registro_t));
+	reg->proxA = -1;
+	reg->proxB = -1;
 	reg->id = -1;
 	reg->ano = -1;
 	reg->qtt = -1;
