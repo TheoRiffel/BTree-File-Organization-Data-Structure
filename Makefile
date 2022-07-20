@@ -34,7 +34,7 @@ clean: rem
 	rm -rf $(PROGRAM) $(OBJ_FILES)
 
 zip:
-	zip -r main.zip Makefile src include bin obj -x "*/*.o" -x "bin/main"
+	zip -r main.zip Makefile src includes bin obj -x "*/*.o" -x "bin/main"
 
 time: CFLAGS += -DTIME
 time: $(PROGRAM)

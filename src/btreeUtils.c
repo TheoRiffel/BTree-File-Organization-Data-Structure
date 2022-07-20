@@ -17,11 +17,13 @@ void escreverCabecalhoBTree(FILE* BTree_file, cabecalhoBTree_t* cabecalho, int t
 {
 	fseek(BTree_file, 0, SEEK_SET);
 	fwrite(&cabecalho->status, sizeof(char), 1, BTree_file);
-	fwrite(&cabecalho->noRaiz, sizeof(char), 1, BTree_file);
-	fwrite(&cabecalho->nroNos, sizeof(char), 1, BTree_file);
+	fwrite(&cabecalho->noRaiz, sizeof(int), 1, BTree_file);
+	fwrite(&cabecalho->proxRRN, sizeof(int), 1, BTree_file);
+	fwrite(&cabecalho->nroNos, sizeof(int), 1, BTree_file);
 
 	int qnt_lixo = tipo == 1? (TAM_REG_BTREE1 - TAM_CABECALHO_BTREE) : (TAM_REG_BTREE2 - TAM_CABECALHO_BTREE);
-	fwrite("$", sizeof(char), qnt_lixo, BTree_file);
+	for(int i =0; i < qnt_lixo; i++)
+		fwrite("$", sizeof(char), 1, BTree_file);
 }
 
 /**
@@ -46,6 +48,15 @@ cabecalhoBTree_t* lerCabecalhoBTree(FILE* BTree_file, int tipo)
 	fseek(BTree_file, qnt_lixo, SEEK_CUR);
 
 	return cab;
+}
+
+cabecalhoBTree_t* inicializarCabecalhoBTree()
+{
+	cabecalhoBTree_t* c = malloc(sizeof(cabecalhoBTree_t));
+	c->noRaiz = -1;
+	c->nroNos = -1;
+	c->proxRRN = -1;
+	c->status = '1';
 }
 
 registroBTree_t *inicializarRegistroBTree()
@@ -98,6 +109,7 @@ registroBTree_t* inicializarBTree()
 	registroBTree_t* raiz = inicializarRegistroBTree();
 	raiz->tipoNo = NO_RAIZ;
 	raiz->RRNregistroBTree = 0;
+	raiz->nroChaves = 0;
 
 	return raiz;
 }
@@ -113,7 +125,7 @@ void escreverRegistroBTree(FILE* BTree_file, int RRN, registroBTree_t* no, int t
 {
 	if (tipo == 1)
 		fseek(BTree_file, (RRN * TAM_REG_BTREE1) + TAM_REG_BTREE1, SEEK_SET);
-	else
+	else if (tipo == 2)
 		fseek(BTree_file, (RRN * TAM_REG_BTREE2) + TAM_REG_BTREE2, SEEK_SET);
 
 	fwrite(&no->tipoNo, sizeof(char), 1, BTree_file);
@@ -144,22 +156,23 @@ void escreverRegistroBTree(FILE* BTree_file, int RRN, registroBTree_t* no, int t
 registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo)
 {
 	registroBTree_t* no = inicializarRegistroBTree();
+	char buffer;
 
-	// no->RRNregistroBTree = tipo == 1? (ftell(BTree_file) / TAM_REG_BTREE1) - 1: (ftell(BTree_file) / TAM_REG_BTREE2) - 1;
+	no->RRNregistroBTree = tipo == 1? (ftell(BTree_file) / TAM_REG_BTREE1) - 1: (ftell(BTree_file) / TAM_REG_BTREE2) - 1;
 	fread(&no->tipoNo, sizeof(char), 1, BTree_file);
 	fread(&no->nroChaves, sizeof(int), 1, BTree_file);
 
-    for (int i = 0; i < TAXA_OCUPACAO; i++)
-    {
-	    fread(&no->chave[i].id, sizeof(int), 1, BTree_file);
-        if (tipo == 1)
-            fread(&no->chave[i].RRN, sizeof(int), 1, BTree_file);
-        else if (tipo == 2)
-            fread(&no->chave[i].byteOffset, sizeof(long int), 1, BTree_file);
-    }
+	for (int i = 0; i < TAXA_OCUPACAO; i++)
+	{
+		fread(&no->chave[i].id, sizeof(int), 1, BTree_file);
+		if (tipo == 1)
+			fread(&no->chave[i].RRN, sizeof(int), 1, BTree_file);
+		else if (tipo == 2)
+			fread(&no->chave[i].byteOffset, sizeof(long int), 1, BTree_file);
+	}
 
-    for (int i = 0; i < ORDEM_ARVORE; i++)
-        fread(&no->ptr[i], sizeof(int), 1, BTree_file);
+	for (int i = 0; i < ORDEM_ARVORE; i++)
+		fread(&no->ptr[i], sizeof(int), 1, BTree_file);
 
 	return no;
 }
@@ -235,7 +248,8 @@ bool verificaTaxaOcupacao(registroBTree_t *no)
 void insertChaveNo(chave_t chave, registroBTree_t *no, int RRN_abaixo, int tipo)
 {
 	int i;
-	for (i = no->nroChaves; chave.id < no->chave[i - 1].id && i > 0; i--)
+	
+	for (i = no->nroChaves; i > 0 && chave.id < no->chave[i - 1].id ; i--)
 	{
 		no->chave[i] =  no->chave[i - 1];
 		no->ptr[i + 1] = no->ptr[i];
@@ -243,132 +257,8 @@ void insertChaveNo(chave_t chave, registroBTree_t *no, int RRN_abaixo, int tipo)
 	no->nroChaves++;
 	no->chave[i] = chave;
 
-	/*
-	COMO ESTA NO LIVRO: 
-	no->ptr[i + 1] = RRN_abaixo;
-	*/
-	/*
-	COMO A GENTE TINHA FEITO ISSO:
-	no->ptr[i + 1] = no->ptr[i];
-	no->ptr[i] = RRN_abaixo;
-	*/
-
-	//como eu acho que precisa fazer mesmo:
 	no->ptr[i + 1] = RRN_abaixo;
 }
-
-/*
-chave_t split(registroBTree_t *no, chave_t chave, int RRN_abaixo)
-{
-	int i;
-	int mid;
-	chave_t chavesTemp[TAXA_OCUPACAO + 1];
-	int ptrTemp[ORDEM_ARVORE + 1];
-
-	for (i = 0; i < no->nroChaves; i++)
-	{
-		chavesTemp[i] = no->chave[i];
-		ptrTemp[i] = no->ptr[i];
-	}
-	ptrTemp[i] = no->ptr[i];
-
-	for (i = no->nroChaves; chave.id < chavesTemp[i - 1].id && i > 0; i--)
-	{
-		chavesTemp[i] = chavesTemp[i - 1];
-		ptrTemp[i + 1] = ptrTemp[i + 1];
-	}
-	chavesTemp[i] = chave;
-	ptrTemp[i + 1] = ptrTemp[i];
-	ptrTemp[i] = RRN_abaixo;
-
-	registroBTree_t *novoNo = inicializarRegistroBTree();
-
-	//preciso pegar o cabeçalho? talvez
-	for (i = 0; i < TAXA_MINIMA; i++)
-	{
-		no->chave[i] = chavesTemp[i];
-		no->ptr[i] = ptrTemp[i];
-		no->chave[i + TAXA_MINIMA] = retiraChave();
-		no->ptr[i + 1 + TAXA_MINIMA] = REFERENCIA_NULA;
-		
-		novoNo->chave[i] = chavesTemp[i + 1 + TAXA_MINIMA];
-		novoNo->ptr[i] = ptrTemp[i + 1 + TAXA_MINIMA];
-	}
-	no->ptr[TAXA_MINIMA] = ptrTemp[TAXA_MINIMA];
-	no->nroChaves = TAXA_MINIMA;
-
-	novoNo->ptr[TAXA_MINIMA] = ptrTemp[i + 1 + TAXA_MINIMA];
-	novoNo->nroChaves = TAXA_OCUPACAO - TAXA_MINIMA;
-
-	if (no->tipoNo == '0')
-	{
-		registroBTree_t	*novoNoRaiz;
-		novoNoRaiz->tipoNo = '0';
-		novoNoRaiz->chave[0] = chave;
-		novoNoRaiz->ptr[0] = 
-	}
-	
-	return chavesTemp[TAXA_MINIMA];
-}
-*/
-/*
-bool insertBTree(FILE* BTree_file, cabecalhoBTree_t* cab, int RRN_no, int* RRNPromovido, chave_t* chave, int tipo)
-{
-	
-		// função recursiva:
-		// 	desço até o nó folha onde ficaria a minha chave
-		// 	se couber a minha chave, insiro
-		// 	senão crio um novo nó, split.
-
-		// 	subo na recursão até que promoção == false
-	
- 	// vou para o b.o. do nó
-	if (tipo == 1)
-		fseek(BTree_file, (RRN_no * TAM_REG_BTREE1) + TAM_REG_BTREE1, SEEK_SET);
-	else
-		fseek(BTree_file, (RRN_no * TAM_REG_BTREE2) + TAM_REG_BTREE2, SEEK_SET);
-	
-	// se RRN_no é -1, quer dizer que o nó anterior da recursão é folha, tento fazer a inserção de 'chave' nele
-	if (RRN_no == -1)
-		return true; 
-
-	// busca da chave
-	registroBTree_t *no = lerRegistroBTree(BTree_file, tipo);
-	if (buscaBinariaChavesBTree(chave->id, no->chave, 0, no->nroChaves) == -1)
-	{
-		printf("Inserção de elemento repetido!!");
-		exit(0);
-	}
-
-	int i = 0;
-	while (i < no->nroChaves && chave->id > no->chave[i].id)
-		i++;
-	int proxRRNregisterBTree = no->ptr[i];
-
-	bool promocao = insertBTree(BTree_file, cab, proxRRNregisterBTree, &proxRRNregisterBTree, chave, tipo);
-
-	// se não precisa de promoção, ignoro
-	if (!promocao) return false;
-	
-	// verificação se precisa splitar o no
-	if (verificaTaxaOcupacao(no))
-	{
-		// a chave a ser inserida será aquela a ser promovida
-		registroBTree_t *novo_no;
-		chave_t promovida = split(no, (*chave), proxRRNregisterBTree, novo_no);
-		*chave = promovida;
-		(*RRNPromovido) = cab->proxRRN;
-		cab->proxRRN++;
-		return true;
-	}
-	else
-	{
-		insertChaveNo((*chave), no, *RRNPromovido, tipo);
-		return false;
-	}
-
-}
-*/
 
 void split2(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no, chave_t *promo_key, int *promo_r_child, registroBTree_t *novoNo)
 {
@@ -393,25 +283,36 @@ void split2(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no
 	ptrTemp[i + 1] = r_child;
 
 	*promo_r_child = cab->proxRRN;
-	novoNo = inicializarRegistroBTree();
+
+	// definir os tipos dos nós
+	if(no->tipoNo == NO_RAIZ && cab->nroNos < 3)
+		no->tipoNo = NO_FOLHA;
+	else if (no->tipoNo == NO_RAIZ)
+		no->tipoNo = NO_INTERMEDIARIO;
+
+	novoNo->tipoNo = no->tipoNo;
 
 	for (i = 0; i < TAXA_MINIMA; i++)
 	{
 		no->chave[i] = chavesTemp[i];
 		no->ptr[i] = ptrTemp[i];	
-		novoNo->chave[i] = chavesTemp[i + 1 + TAXA_MINIMA];
+		if(i + 1 + TAXA_MINIMA <= TAXA_OCUPACAO)
+			novoNo->chave[i] = chavesTemp[i + 1 + TAXA_MINIMA];
+
 		novoNo->ptr[i] = ptrTemp[i + 1 + TAXA_MINIMA];
 	}
-	for (i = TAXA_MINIMA; i < TAXA_OCUPACAO; i++) // acho que isso soluciona o problema do trem lá
-	{
-		no->chave[i + TAXA_MINIMA] = retiraChave();
-		no->ptr[i + 1 + TAXA_MINIMA] = REFERENCIA_NULA;
-	}
+
+	no->chave[TAXA_MINIMA] = retiraChave();
+	no->ptr[TAXA_MINIMA + 1] = REFERENCIA_NULA;
 
 	no->ptr[TAXA_MINIMA] = ptrTemp[TAXA_MINIMA];
 	no->nroChaves = TAXA_MINIMA;
 
-	novoNo->ptr[TAXA_MINIMA] = ptrTemp[i + 1 + TAXA_MINIMA];
+	if(ORDEM_ARVORE % 2 != 0)
+		novoNo->ptr[TAXA_MINIMA] = ptrTemp[i + 1 + TAXA_MINIMA];
+	else
+		novoNo->ptr[TAXA_MINIMA - 1] = ptrTemp[i + TAXA_MINIMA];
+	
 	novoNo->nroChaves = TAXA_OCUPACAO - TAXA_MINIMA;
 
 	*promo_key = chavesTemp[TAXA_MINIMA];
@@ -439,10 +340,15 @@ bool insert2(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave,
 
 	// busca da chave
 	no = lerRegistroBTree(BTree_file, tipo);
-	if (buscaBinariaChavesBTree(chave.id, no->chave, 0, no->nroChaves) == -1)
+
+	if(no->nroChaves > 0)
 	{
-		printf("Inserção de elemento repetido!!");
-		exit(0);
+		if (buscaBinariaChavesBTree(chave.id, no->chave, 0, no->nroChaves) != -1)
+		{
+			printf("Inserção de elemento repetido!!");
+			free(no);
+			return false;
+		}
 	}
 	
 	int i = 0;
@@ -453,20 +359,30 @@ bool insert2(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave,
 	bool promocao = insert2(cab, BTree_file, proxRRNregisterBTree, chave, &p_b_rrn, &p_b_key, tipo);
 
 	if (!promocao)
+	{
+		free(no);
 		return promocao;
+	}
 	
 	//split
 	if (verificaTaxaOcupacao(no))
 	{
+		novo_no = inicializarRegistroBTree();
 		split2(cab, p_b_key, p_b_rrn, no, promo_key, promo_r_child, novo_no);
 		escreverRegistroBTree(BTree_file, RRN_no, no, tipo);
 		escreverRegistroBTree(BTree_file, *promo_r_child, novo_no, tipo);
+		cab->nroNos++;
+		cab->proxRRN++;
+		free(novo_no);
+		free(no);
 		return true;
 	}
 	else
 	{
 		insertChaveNo(p_b_key, no, p_b_rrn, tipo);
 		escreverRegistroBTree(BTree_file, RRN_no, no, tipo);
+
+		free(no);
 		return false;
 	}
 }
@@ -479,18 +395,34 @@ void insertBTree(FILE* BTree_file, cabecalhoBTree_t *cabecalho, chave_t chave, i
 	chave_t chave_promo;
 
 	if (cabecalho->noRaiz == -1)
+	{
 		raiz = inicializarBTree();
+		insertChaveNo(chave, raiz, -1, tipo);
+		escreverRegistroBTree(BTree_file, raiz->RRNregistroBTree, raiz, tipo);
+		cabecalho->noRaiz = raiz->RRNregistroBTree;
+		cabecalho->nroNos = 1;
+		cabecalho->proxRRN = 1;
 
+		free(raiz);
+		return;
+	}
 	promoted = insert2(cabecalho, BTree_file, cabecalho->noRaiz, chave, &promoRRN, &chave_promo, tipo);
 
 	if (promoted)
 	{
 		raiz = inicializarRegistroBTree();
-		raiz->tipoNo = '0';
+		raiz->tipoNo = NO_RAIZ;
 		raiz->nroChaves = 1;
-		raiz->chave[0].id = chave_promo.id;
+		raiz->chave[0] = chave_promo;
 		raiz->ptr[0] = cabecalho->noRaiz;
 		raiz->ptr[1] = promoRRN;
-		escreverRegistroBTree(BTree_file, cabecalho->proxRRN, raiz, tipo);
+		raiz->RRNregistroBTree = cabecalho->proxRRN;
+		escreverRegistroBTree(BTree_file, raiz->RRNregistroBTree, raiz, tipo);
+		cabecalho->noRaiz = raiz->RRNregistroBTree;
+		cabecalho->nroNos++;
+		cabecalho->proxRRN++;
+	
+		free(raiz);
 	}
+
 }

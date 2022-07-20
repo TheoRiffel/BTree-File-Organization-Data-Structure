@@ -18,7 +18,7 @@ void escreverCabecalho(FILE* binario, cabecalho_t* cabecalho, int tipo)
 {
 	inicializarCabecalho(cabecalho);
 
-	fseek(binario, 0, 0);
+	fseek(binario, 0, SEEK_SET);
 	fwrite(&cabecalho->status, 1, 1, binario);
 
 	if (tipo == 1)
@@ -164,10 +164,11 @@ void atualizarRegistro(int tipo, registro_t* r, FILE* fptr)
  */
 cabecalho_t* lerCabecalho(int tipo, FILE* fptr)
 {
+	fseek(fptr, 0, SEEK_SET);
 
 	cabecalho_t* cab = malloc(sizeof(cabecalho_t));
 	inicializarCabecalho(cab);
-	fread(&cab->status, 1, 1, fptr);
+	fread(&cab->status, sizeof(char), 1, fptr);
 
 	if (tipo == 1)
 	{
@@ -1136,4 +1137,70 @@ void updateRegistros(arquivo_t* arq, buscaParams_t* busca, buscaParams_t* novosV
 		}
 	}
 
+}
+
+/**
+ * @brief Função que insere um registro no arquivo de dados, analisando o melhor local 
+ * para realizar a inserção
+ * 
+ * @param dados referência para o arquivo de dados
+ * @param reg struct contendo os dados do registro
+ * @param cab struct contendo os dados do cabeçalho
+ * @param tipo tipo do arquivo
+ * @param chave chave a ser inserida na btree
+ */
+void insereRegistroDados(FILE* dados, registro_t* reg, cabecalho_t* cab, int tipo, chave_t* chave)
+{
+	// ir para o local do arquivo onde será inserido o registro
+	if (tipo == 1)
+	{
+		int posicao = cab->topoA;
+		printf("topo de novo :%d\n proxrrn: %d\n", cab->topoA, cab->proxRRN);
+		if(posicao != -1) // caso tenha removidos, inserir lá e modificar a pilha
+		{
+			fseek(dados, (posicao * TAM_REG) + TAM_CABECALHO1 + 1, SEEK_SET);
+			int novoTopo;
+			fread(&novoTopo, sizeof(int), 1, dados);
+			fseek(dados, -(sizeof(int) + 1), SEEK_CUR);
+			chave->RRN = cab->topoA;
+			cab->topoA = novoTopo;
+		}
+		else // se não, inserir no fim do arquivo
+		{
+			fseek(dados, (cab->proxRRN * TAM_REG) + TAM_CABECALHO1, SEEK_SET);
+			chave->RRN = cab->proxRRN;
+			cab->proxRRN++;
+		}
+	}
+	else if (tipo == 2)
+	{
+		long int posicao = cab->topoB;
+		if(posicao != -1) // caso tenha removidos, verificar o tamanho
+		{
+			fseek(dados, posicao + 1, SEEK_SET);
+			int novoTopo, tamanho;
+			fread(&tamanho, sizeof(int), 1, dados);
+			fread(&novoTopo, sizeof(long int), 1, dados);
+			if(tamanho <= reg->tamRegistro) //se cabe, inserir
+			{
+				fseek(dados, -(sizeof(long int) + sizeof(long int) + 1), SEEK_CUR);
+				chave->byteOffset = cab->topoB;
+				cab->topoB = novoTopo;
+			}
+			else // se não, vai para o fim do arquivo
+			{
+				fseek(dados, cab->proxByteOffset, SEEK_SET);
+				chave->byteOffset = cab->proxByteOffset;
+				cab->proxByteOffset += reg->tamRegistro + 5;
+			}
+		}
+		else // se não há removidos, insere no fim
+			{
+				fseek(dados, cab->proxByteOffset, SEEK_SET);
+				chave->byteOffset = cab->proxByteOffset;
+				cab->proxByteOffset += reg->tamRegistro + 5;
+			}
+	}
+	// inserir o registro
+	escreverNoArquivo(dados, reg, cab, tipo);
 }

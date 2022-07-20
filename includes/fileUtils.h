@@ -31,5 +31,6 @@ void updateRegistros(arquivo_t* arq, buscaParams_t* busca, buscaParams_t* novosV
 arquivo_t* inicializaStrcArquivo();
 void insereRegistroNoArquivo(arquivo_t* arq, indice_t* indice);
 void liberarStrctArq(arquivo_t* arq);
+void insereRegistroDados(FILE* dados, registro_t* reg, cabecalho_t* cab, int tipo, chave_t* chave);
 
 #endif

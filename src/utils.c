@@ -65,7 +65,10 @@ int readNumberUntil(FILE* a, char delimiter)
 		return -1;
 	}
 
-	int number = atoi(num);
+	int number;
+
+	if (strcmp("NULO", num) == 0) number = -1;
+	else number = atoi(num);
 	free(num);
 
 	return number;
@@ -111,6 +114,7 @@ void readStaticUntil(FILE* a, int tamanho, char* s, char delimiter)
  */
 void inicializarCabecalho(cabecalho_t* cabecalho)
 {
+	cabecalho->status = '\0';
 	cabecalho->topoA = -1;
 	cabecalho->topoB = -1;
 	strcpy(cabecalho->descricao, "LISTAGEM DA FROTA DOS VEICULOS NO BRASIL");
@@ -220,6 +224,9 @@ void liberar(registro_t* r)
 registro_t* inicializarRegistro()
 {
 	registro_t* reg = malloc(sizeof(registro_t));
+	reg->id = -1;
+	reg->ano = -1;
+	reg->qtt = -1;
 	reg->tamRegistro = 0;
 	reg->codC5 = '$';
 	reg->codC6 = '$';
@@ -227,6 +234,7 @@ registro_t* inicializarRegistro()
 	reg->cidade = NULL;
 	reg->marca = NULL;
 	reg->modelo = NULL;
+	strcpy(reg->sigla, "$$");
 
 	return reg;
 }
@@ -665,99 +673,77 @@ void registraCodigos(int numCodigosUtilizados, registro_t* reg, int cod)
 		break;
 	}
 }
+
 /**
  * @brief Lê registro a partir da stdin e retorna uma struct registro
  * @return o registro lido da stdin
- * @param tipoRegistro: O tipo do registro
+ * @param tipo: O tipo do registro
  */
-registro_t* lerRegistroStdin(int tipoRegistro)
+registro_t* lerRegistroStdin(int tipo)
 {
+	registro_t* reg = inicializarRegistro();
+	reg->id = readNumberUntil(stdin, ' ');
+	reg->ano = readNumberUntil(stdin, ' ');
+	reg->qtt = readNumberUntil(stdin, ' ');
 
-	registro_t* registro = malloc(sizeof(registro_t));
-	char* tmpSigla = malloc(sizeof(char) * 2);
+	char* sigla = readStrQuote(stdin);
 
-	registro->removido = '0';
-	registro->proxA = -1;
-	registro->proxB = -1;
+	if (sigla) strcpy(reg->sigla, sigla);
+	else strcpy(reg->sigla, "$$");
 
-	char tmp = fgetc(stdin);
-	ungetc(tmp, stdin);
+	reg->cidade = readStrQuote(stdin);
+	reg->marca = readStrQuote(stdin);
+	reg->modelo = readStrQuote(stdin);
 
-	registro->id = readNumberUntil(stdin, ' ');
-	registro->ano = readNumberUntil(stdin, ' ');
-	registro->qtt = readNumberUntil(stdin, ' ');
+	reg->tamRegistro = tipo == 1 ? ESTATICOS1 : ESTATICOS2;
+	reg->codC5 = reg->codC6 = reg->codC7 = '$';
 
-	if (registro->ano == 0)
-	{
-		registro->ano = -1;
-	}
-	if (registro->qtt == 0)
-	{
-		registro->qtt = -1;
-	}
-
-	tmpSigla = readStrQuote(stdin);
-	if (tmpSigla)
-	{
-		registro->sigla[0] = tmpSigla[0];
-		registro->sigla[1] = tmpSigla[1];
-	}
-	else
-	{
-		registro->sigla[0] = '$';
-		registro->sigla[1] = '$';
-	}
-
-	registro->cidade = readStrQuote(stdin);
-	registro->marca = readStrQuote(stdin);
-	registro->modelo = readStrQuote(stdin);
-
-	registro->tamRegistro = tipoRegistro == 1 ? ESTATICOS1 : 42;
-
-	registro->codC5 = registro->codC6 = registro->codC7 = '$';
 	int contadorCodigos = 0;
 
-	if (registro->cidade == NULL)
+	if (reg->cidade == NULL)
 	{
-		registro->tamCidade = 0;
-		registro->tamRegistro -= 5;
+		reg->tamCidade = 0;
+		reg->tamRegistro -= 5;
 	}
 	else
 	{
-		registro->tamCidade = strlen(registro->cidade);
-		registro->tamRegistro += registro->tamCidade;
-		registraCodigos(contadorCodigos++, registro, '0');
+		reg->tamCidade = strlen(reg->cidade);
+		reg->tamRegistro += reg->tamCidade;
+		registraCodigos(contadorCodigos++, reg, '0');
 	}
 
-	if (registro->marca == NULL)
+	if (reg->marca == NULL)
 	{
-		registro->tamMarca = 0;
-		registro->tamRegistro -= 5;
+		reg->tamMarca = 0;
+		reg->tamRegistro -= 5;
 	}
 	else
 	{
-		registro->tamMarca = strlen(registro->marca);
-		registro->tamRegistro += registro->tamMarca;
-		registraCodigos(contadorCodigos++, registro, '1');
+		reg->tamMarca = strlen(reg->marca);
+		reg->tamRegistro += reg->tamMarca;
+		registraCodigos(contadorCodigos++, reg, '1');
 	}
 
-	if (registro->modelo == NULL)
+	if (reg->modelo == NULL)
 	{
-		registro->tamModelo = 0;
-		registro->tamRegistro -= 5;
+		reg->tamModelo = 0;
+		reg->tamRegistro -= 5;
 	}
 	else
 	{
-		registro->tamModelo = strlen(registro->modelo);
-		registro->tamRegistro += registro->tamModelo;
-		registraCodigos(contadorCodigos++, registro, '2');
+		reg->tamModelo = strlen(reg->modelo);
+		reg->tamRegistro += reg->tamModelo;
+		registraCodigos(contadorCodigos++, reg, '2');
 	}
 
-	char descartN = fgetc(stdin);
-	free(tmpSigla);
+	char descartSpaces = fgetc(stdin);
+	if (descartSpaces == '\r') descartSpaces = fgetc(stdin);
 
-	return registro;
+	free(sigla);
+
+	return reg;
 }
+
 /**
  * @brief Lê valor da stdin entre aspas
  * @return resultado da leitura
@@ -792,6 +778,7 @@ static char* readStrQuote(FILE* fptr)
 		palavra[i++] = tmpchr;
 	} while ((tmpchr = fgetc(fptr)) != '\"');
 
+	palavra = realloc(palavra, (i + 1) * sizeof(char));
 	palavra[i] = '\0';
 
 	return palavra;
