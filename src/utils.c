@@ -338,6 +338,15 @@ int campoEstaPreenchido(char codigo, registro_t* reg) {
 	return reg->codC5 == codigo || reg->codC6 == codigo || reg->codC7 == codigo;
 }
 
+/**
+ * @brief Função que valida um dos filtros do tipo int usados para a
+ *  busca parametrizada
+ * 
+ * @param reg struct com os dados do registro encontrado
+ * @param busca struct com os dados para a busca
+ * @param filtro inteiro que informa qual filtro será validado
+ * @return int retorna um valor que diz se é válido ou não
+ */
 static int validaFiltroInt(registro_t* reg, buscaParams_t* busca, int filtro) {
 	int val;
 	switch (filtro) {
@@ -351,6 +360,16 @@ static int validaFiltroInt(registro_t* reg, buscaParams_t* busca, int filtro) {
 	return atoi(busca->filtros[filtro]) == val;
 }
 
+/**
+ * @brief Função que compara 2 strings levando em conta, inicialmente,
+ *  seu tamanho
+ * 
+ * @param num1 string 1
+ * @param num2 string 2
+ * @param sz1 tamanho da string 1
+ * @param sz2 tamanho da string 2
+ * @return int 
+ */
 static int strcmpWLen(char* num1, char* num2, int sz1, int sz2) {
 	if (sz2 != sz1) {
 		return 0;
@@ -365,6 +384,15 @@ static int strcmpWLen(char* num1, char* num2, int sz1, int sz2) {
 	return 1;
 }
 
+/**
+ * @brief Função que valida um dos filtros do tipo string usados para a
+ *  busca parametrizada
+ * 
+ * @param reg struct com os dados do registro encontrado
+ * @param busca struct com os dados para a busca
+ * @param filtro inteiro que informa qual filtro será validado
+ * @return int retorna um valor que diz se é válido ou não
+ */
 static int validaFiltroStr(registro_t* reg, buscaParams_t* busca, int filtro) {
 	char* val = NULL;
 	int tam = 0;
@@ -405,6 +433,14 @@ static int validaFiltroStr(registro_t* reg, buscaParams_t* busca, int filtro) {
 	return strcmpWLen(ref, val, tam, strlen(ref));
 }
 
+/**
+ * @brief Função que valida os filtros aplicados na busca
+ *  parametrizada
+ * 
+ * @param reg struct com os dados do registro encontrado
+ * @param busca struct com os dados para a busca
+ * @return int retorna um valor que diz se é válido ou não
+ */
 int ehValidoFiltro(registro_t* reg, buscaParams_t* busca) {
 
 	for (int i = 0; i < NUM_PARAMETROS; i++) {
@@ -563,6 +599,13 @@ int buscaBinariaChavesBTree(int chave, chave_t vetor[], int esq, int dir)
 	return -1;
 }
 
+/**
+ * @brief Função que recebe os filtros para o select where
+ * 
+ * @param numFiltros quantidade de filtros usados
+ * @param busca struct com os dados da busca, onde serão armazenados os filtros
+ * @param arquivo ponteiro para o arquivo de dados
+ */
 static void RecebeFiltros(int numFiltros, buscaParams_t* busca, FILE* arquivo)
 {
 
