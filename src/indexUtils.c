@@ -181,6 +181,14 @@ indice_t* removerRegistroIndex(indice_t* indice, int* id, int tipo, int qttId)
 	return indice;
 }
 
+/**
+ * @brief Função que atualiza um registro no indice
+ * 
+ * @param indice struct que contém os índices em RAM
+ * @param reg struct com os dados do registro
+ * @param tipo tipo do arquivo
+ * @param idAnterior id a ser atualizado
+ */
 void atualizarRegistroIndex(indice_t* indice, registroIndice_t* reg, int tipo, int idAnterior) {
 
 	int posicao = buscaBinaria(idAnterior, indice->registros, 0, indice->tamanho);
