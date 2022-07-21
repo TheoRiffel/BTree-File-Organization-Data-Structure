@@ -572,6 +572,11 @@ void update() {
     liberarStrctArq(arq);
 }
 
+/**
+ * @brief Cria um índice do tipo árvore B a partir de um arquivo binário 
+ * de dados e o escreve em um arquivo binário
+ * 
+ */
 void createBTreeIndex()
 {
     //leitura da entrada
@@ -615,11 +620,12 @@ void createBTreeIndex()
 
     cabecalhoBTree_t* cabecalhoBTree = inicializarCabecalhoBTree();
 
+    // setando arquivos que seão modificados como inconsistentes
     cabecalhoBTree->status = ARQUIVO_INCONSISTENTE;
     escreverCabecalhoBTree(bTree_fptr, cabecalhoBTree, tipo);
     registroBTree_t* raiz = inicializarBTree(bTree_fptr, tipo);
 
-    char buffer;
+    char buffer; // loop que percorre o arquivo de dados
     while (fread(&buffer, 1, 1, dados) != 0)
     {
         ungetc(buffer, dados);
@@ -642,13 +648,16 @@ void createBTreeIndex()
         if (tipo == 1) chave.RRN = ((ftell(dados) - TAM_CABECALHO1) / TAM_REG) - 1;
         else if (tipo == 2) chave.byteOffset = ftell(dados) - registro->tamRegistro - 5;
 
+        // inserindo registro na árvore B
         insertBTree(bTree_fptr, cabecalhoBTree, chave, tipo);     
         liberaRegistro(registro);
     }
 
+    // setando os arquivos como consistentes novamente após alterações
     cabecalhoBTree->status = ARQUIVO_CONSISTENTE;
     escreverCabecalhoBTree(bTree_fptr, cabecalhoBTree, tipo);
 
+    // fechar arquivos e liberar memória usada
     fclose(dados);
     fclose(bTree_fptr);
 
@@ -659,6 +668,11 @@ void createBTreeIndex()
     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
 }
 
+/**
+ * @brief Função que insere n novos registros no arquivo de dados, 
+ * bem como na árvore B de índices e modifica os binários correspondentes
+ * 
+ */
 void insertFile()
 {
    //leitura da entrada
@@ -704,13 +718,16 @@ void insertFile()
         return;
     }
 
+    // setando arquivos que seão modificados como inconsistentes
     cabecalho->status = ARQUIVO_INCONSISTENTE;
     cabecalhoBTree->status = ARQUIVO_INCONSISTENTE;
     atualizarCabecalho(dados, cabecalho, tipo);
     escreverCabecalhoBTree(BTree_file, cabecalhoBTree, tipo);
 
+    // para cada inserção, lê um registro da entrada e o insere
+    // tanto no arquivo de dados como na árvore B
     for (int i = 0; i < numInserts; i++)
-    {
+    { 
         registro_t* reg = lerRegistroStdin(tipo);
         reg->removido = '0';
         chave_t chave;
@@ -721,11 +738,13 @@ void insertFile()
         liberaRegistro(reg);
     }
 
+    // setando os arquivos como consistentes novamente após alterações
     cabecalho->status = ARQUIVO_CONSISTENTE;
     cabecalhoBTree->status = ARQUIVO_CONSISTENTE;
     atualizarCabecalho(dados, cabecalho, tipo);
     escreverCabecalhoBTree(BTree_file, cabecalhoBTree, tipo);
 
+    // fechar arquivos e liberar memória usada
     fclose(dados);
     fclose(BTree_file);
 
@@ -738,6 +757,11 @@ void insertFile()
 
 }
 
+/**
+ * @brief Função que busca uma chave na árvore B, e, se encontra,
+ * busca o registro e o imprime
+ * 
+ */
 void busca()
 {
     // leitura da entrada
@@ -750,7 +774,7 @@ void busca()
     if (strcmp(tipoArquivo, "tipo1") == TIPOS_IGUAIS) tipo = 1;
     else if (strcmp(tipoArquivo, "tipo2") == TIPOS_IGUAIS) tipo = 2;
 
-// abrir e conferir os arquivos
+    // abrir e conferir os arquivos
     FILE* dados = fopen(arquivoDados, "rb");
     FILE* BTree_file = fopen(arquivoBTree, "rb");
 
@@ -788,37 +812,40 @@ void busca()
         return;
     }
 
-    char field[100];
+    char field[100]; // ler campo
     scanf(" %s", field);
-    int chave;
+    int chave; // ler valor
     scanf("%d", &chave);
 
+    // buscar a chave na árvore B
 	chave_t *chave_encontrada = searchBTree(BTree_file, cabecalhoBTree->noRaiz, chave, tipo);
 
-	if (chave_encontrada == NULL) 
+	if (chave_encontrada == NULL) // se não está lá, não existe no arquivo de dados
         printf("Registro inexistente.");
-	else 
-	{
+	else // se está, vai até ela no arquivo de dados
+	{ // chegando até sua localização
         if (tipo == 1)
             fseek(dados, (chave_encontrada->RRN * TAM_REG) + TAM_CABECALHO1, SEEK_SET);
 
         else if (tipo == 2)
             fseek(dados, chave_encontrada->byteOffset, SEEK_SET);
 
-
+        // ler registro correspondente à chave buscada
         registro_t *reg = lerRegistro(tipo, dados, cabecalho->proxByteOffset);
 
-        if (reg->removido == '1')
+        if (reg->removido == '1') // se está removido, não existe
             printf("Registro inexistente.");
-        else
+        else // se não está removido, imprime suas informações
             imprimirRegistro(reg, cabecalho);
 
+        // libera o registro
         free(reg->marca);
         free(reg->modelo);
         free(reg->cidade);
         free(reg);
 	}
 
+    // fechar arquivos e liberar memória usada
     free(cabecalhoBTree);
     free(cabecalho);
     fclose(dados);
