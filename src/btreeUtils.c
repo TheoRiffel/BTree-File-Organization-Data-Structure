@@ -44,12 +44,18 @@ cabecalhoBTree_t* lerCabecalhoBTree(FILE* BTree_file, int tipo)
 	fread(&cab->proxRRN, sizeof(int), 1, BTree_file);
 	fread(&cab->nroNos, sizeof(int), 1, BTree_file);
 	
+	//quantidade de lixo a ser preenchido no registro de cabeçalho	
 	int qnt_lixo = tipo == 1? (TAM_REG_BTREE1 - TAM_CABECALHO_BTREE): (TAM_REG_BTREE2 - TAM_CABECALHO_BTREE);
 	fseek(BTree_file, qnt_lixo, SEEK_CUR);
 
 	return cab;
 }
 
+/**
+ * @brief inicialização das variáveis do cabeçalho da BTree
+ * 
+ * @return cabecalhoBTree_t* 
+ */
 cabecalhoBTree_t* inicializarCabecalhoBTree()
 {
 	cabecalhoBTree_t* c = malloc(sizeof(cabecalhoBTree_t));
@@ -59,6 +65,11 @@ cabecalhoBTree_t* inicializarCabecalhoBTree()
 	c->status = '1';
 }
 
+/**
+ * @brief Inicializar variáveis do registro da BTree, além de alocar memória
+ * 
+ * @return registroBTree_t* ponteiro do registro inicializado
+ */
 registroBTree_t *inicializarRegistroBTree()
 {
 	registroBTree_t* no = malloc(sizeof(registroBTree_t));
@@ -89,6 +100,11 @@ void liberarRegistroBTree(registroBTree_t* no)
 	free(no);
 }
 
+/**
+ * @brief função que seta todos os valores da chave para valores nulos
+ * 
+ * @return chave_t struct chave com valores nulos
+ */
 chave_t retiraChave()
 {
 	chave_t chave_nula;
@@ -177,6 +193,12 @@ registroBTree_t* lerRegistroBTree(FILE* BTree_file, int tipo)
 	return no;
 }
 
+/**
+ * @brief função auxiliar: printa registros da BTree
+ * 
+ * @param no : registro da BTree
+ * @param tipo : inteiro informando o tipo do arquivo
+ */
 void printaRegistroBTree(registroBTree_t *no, int tipo)
 {
 	printf("tipo nó: %c\n", no->tipoNo);
@@ -198,6 +220,16 @@ void printaRegistroBTree(registroBTree_t *no, int tipo)
 	printf("\n\n");
 }	
 
+/**
+ * @brief funcção de busca no arquivo da BTree, percorre o arquivo procurando as chaves recursivamente
+ * 
+ * @param BTree_file : ponteiro do arquivo da BTree
+ * @param RRN_no : RRN do nó atual lido. COMEÇA-SE COM RRN_no IGUAL AO RRN DO NÓ RAÍZ.
+ * @param chave : chave a ser buscada
+ * @param tipo : inteiro informando o tipo do arquivo
+ * @return chave_t* : CASO A BUSCA TENHA SIDO SATISFEITA, RETORNA-SE A CHAVE ECONTRADA
+ * 					  CASO NÃO: RETORNA-SE UMA CHAVE VAZIA (ID == -1)
+ */
 chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 {
 	if (RRN_no == -1)
@@ -209,8 +241,8 @@ chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 		fseek(BTree_file, (RRN_no * TAM_REG_BTREE2) + TAM_REG_BTREE2, SEEK_SET);
 
 	registroBTree_t *no = lerRegistroBTree(BTree_file, tipo);
-	// printaRegistroBTree(no, tipo);
 
+	//nos elementos de cada registro, faço uma busca binária
 	int chave_index = buscaBinariaChavesBTree(chave, no->chave, 0, no->nroChaves - 1);
 
 	// se eu achar no nó atual
@@ -230,6 +262,13 @@ chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo)
 	return searchBTree(BTree_file, proxRRNregisterBTree, chave, tipo);
 }
 
+/**
+ * @brief verifica se o registro passado como parâmetro é nó folha (todos os filhos NULOS)
+ * 
+ * @param no : registro a ser verificado
+ * @return true : registro é nó folha
+ * @return false : registro não é nó folha
+ */
 bool verificaNoFolha(registroBTree_t *no)
 {
 	for (int i = 0; i < no->nroChaves; i++)
@@ -238,6 +277,13 @@ bool verificaNoFolha(registroBTree_t *no)
 	return true;
 }
 
+/**
+ * @brief verifica se o registro atual contém a quantidade limite de chaves
+ * 
+ * @param no : registro a ser verificado	
+ * @return true : registro com espaço indisponível para novas chaves
+ * @return false : registro com espaço suficiente para novas chaves
+ */
 bool verificaTaxaOcupacao(registroBTree_t *no)
 {
 	if (no->nroChaves < TAXA_OCUPACAO)
@@ -245,10 +291,20 @@ bool verificaTaxaOcupacao(registroBTree_t *no)
 	return true;
 }
 
+/**
+ * @brief função que insere uma chave em registro com espaço disponível, reorganizando-o para manter-se
+ * 		  a ordenação das chaves pelo seu ID.
+ * 
+ * @param chave 
+ * @param no 
+ * @param RRN_abaixo 
+ * @param tipo 
+ */
 void insertChaveNo(chave_t chave, registroBTree_t *no, int RRN_abaixo, int tipo)
 {
 	int i;
-	
+
+	//insertion sort para ordenação da nova chave
 	for (i = no->nroChaves; i > 0 && chave.id < no->chave[i - 1].id ; i--)
 	{
 		no->chave[i] =  no->chave[i - 1];
@@ -260,6 +316,20 @@ void insertChaveNo(chave_t chave, registroBTree_t *no, int RRN_abaixo, int tipo)
 	no->ptr[i + 1] = RRN_abaixo;
 }
 
+/**
+ * @brief função que 'quebra' um registro em dois, quando o seu limite de chaves é alcançado.
+ * 		  Inicializa-se um registro novo (novoNo) à direita do registro atual 'quebrado', com RRN == proxRRN do cabeçalho
+ * 			
+ * 		  * ELEMENTO MAIS À ESQUERDA DO NOVO VETOR É PROMOVIDO AO REGISTRO PAI.
+ * 
+ * @param cab : cabeçalho da BTree
+ * @param key : chave a ser inserida
+ * @param r_child : RRN da chave
+ * @param no : registro a ser inserido a chave
+ * @param promo_key : variável passado por parâmetro que é a chave promovida
+ * @param promo_r_child : variável passado por parâmetro que é a chave promovida
+ * @param novoNo : Novo nó criado
+ */
 void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no, chave_t *promo_key, int *promo_r_child, registroBTree_t *novoNo)
 {
 	int i;
@@ -267,6 +337,7 @@ void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *n
 	chave_t chavesTemp[TAXA_OCUPACAO + 1];
 	int ptrTemp[ORDEM_ARVORE + 1];
 
+	// copio os elementos do nó para um vetor temporário dos elementos
 	for (i = 0; i < no->nroChaves; i++)
 	{
 		chavesTemp[i] = no->chave[i];
@@ -274,6 +345,7 @@ void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *n
 	}
 	ptrTemp[i] = no->ptr[i];
 
+	// faço a ordenação dos elementos com a nova chave no vetor temporário
 	for (i = no->nroChaves; key.id < chavesTemp[i - 1].id && i > 0; i--)
 	{
 		chavesTemp[i] = chavesTemp[i - 1];
@@ -292,6 +364,7 @@ void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *n
 
 	novoNo->tipoNo = no->tipoNo;
 
+	// REDISTRIBUIÇÃO DOS ELEMENTOS DO VETOR NO E NOVONO
 	for (i = 0; i < TAXA_MINIMA; i++)
 	{
 		no->chave[i] = chavesTemp[i];
@@ -308,6 +381,7 @@ void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *n
 	no->ptr[TAXA_MINIMA] = ptrTemp[TAXA_MINIMA];
 	no->nroChaves = TAXA_MINIMA;
 
+	//PARIDADE DA ORDEM DA ARVORE
 	if(ORDEM_ARVORE % 2 != 0)
 		novoNo->ptr[TAXA_MINIMA] = ptrTemp[i + 1 + TAXA_MINIMA];
 	else
@@ -318,6 +392,19 @@ void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *n
 	*promo_key = chavesTemp[TAXA_MINIMA];
 }
 
+/**
+ * @brief função que insere uma chave na arvore binária.
+ * 
+ * @param cab : cabeçalho da BTRee
+ * @param BTree_file : ponteiro do arquivo BTree 
+ * @param RRN_no : RRN nó (PASSA-SE INICIALMENTE O RRN NÓ RAIZ)
+ * @param chave : chave a ser inserida
+ * @param promo_r_child : RRN da chave caso haja promoção
+ * @param promo_key : chabe caso haja promoção
+ * @param tipo : tipo do arquivo
+ * @return true : TEM PROMOÇÃO NA CHAVE
+ * @return false : NÃO TEM PROMOÇÃO NA CHAVE
+ */
 bool insertNo(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave, int *promo_r_child, chave_t *promo_key, int tipo)
 {
 	registroBTree_t *no, *novo_no;
@@ -356,15 +443,17 @@ bool insertNo(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave
 		i++;
 	int proxRRNregisterBTree = no->ptr[i];
 
+	// Começo da função recursiva
 	bool promocao = insertNo(cab, BTree_file, proxRRNregisterBTree, chave, &p_b_rrn, &p_b_key, tipo);
 
+	// caso não haja promoção, eu só desempilho a stack toda
 	if (!promocao)
 	{
 		free(no);
 		return promocao;
 	}
 	
-	//split
+	//caso de inserção com split
 	if (verificaTaxaOcupacao(no))
 	{
 		novo_no = inicializarRegistroBTree();
@@ -377,7 +466,7 @@ bool insertNo(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave
 		free(no);
 		return true;
 	}
-	else
+	else // insiro a chave no vetor normalmente
 	{
 		insertChaveNo(p_b_key, no, p_b_rrn, tipo);
 		escreverRegistroBTree(BTree_file, RRN_no, no, tipo);
@@ -386,7 +475,14 @@ bool insertNo(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave
 		return false;
 	}
 }
-
+/**
+ * @brief Função que insere uma chave na árvore B 
+ * 
+ * @param BTree_file ponteiro para o arquivo da árvore B
+ * @param cabecalho struct contendo as informações do cabeçalho da árvore
+ * @param chave chave a ser inserida
+ * @param tipo tipo do arquivo
+ */
 void insertBTree(FILE* BTree_file, cabecalhoBTree_t *cabecalho, chave_t chave, int tipo)
 {
 	bool promoted;
@@ -394,7 +490,7 @@ void insertBTree(FILE* BTree_file, cabecalhoBTree_t *cabecalho, chave_t chave, i
 	registroBTree_t *raiz;
 	chave_t chave_promo;
 
-	if (cabecalho->noRaiz == -1)
+	if (cabecalho->noRaiz == -1) // se não tiver uma raiz, crio a árvore com a chave na raiz
 	{
 		raiz = inicializarBTree();
 		insertChaveNo(chave, raiz, -1, tipo);
@@ -406,10 +502,11 @@ void insertBTree(FILE* BTree_file, cabecalhoBTree_t *cabecalho, chave_t chave, i
 		free(raiz);
 		return;
 	}
+	// se tiver, insiro a chave e retorno uma possível promoção após split na raiz
 	promoted = insertNo(cabecalho, BTree_file, cabecalho->noRaiz, chave, &promoRRN, &chave_promo, tipo);
 
-	if (promoted)
-	{
+	if (promoted) // se tiver split na raiz, cria uma nova com o valor que foi promovido   
+	{             // e escreve no arquivo
 		raiz = inicializarRegistroBTree();
 		raiz->tipoNo = NO_RAIZ;
 		raiz->nroChaves = 1;
