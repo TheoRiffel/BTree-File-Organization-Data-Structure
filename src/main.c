@@ -5,8 +5,8 @@
  |                    Bacharelado em Ciências de Computação                    |
  |                                   2022/1                                    |
  |                                                                             |
- |              Autores: Maria Júlia Soares De Grandi (12542501)               |
- |                       Théo Bruno Frey Riffel (12547812)                     |
+ |              Autores: Maria Júlia Soares De Grandi (12542501)     100%      |
+ |                       Théo Bruno Frey Riffel (12547812)           100%      |
  |                            Disciplina: SCC0215                              |
  *******************************************************************************
   > Terceiro Trabalho Prático
