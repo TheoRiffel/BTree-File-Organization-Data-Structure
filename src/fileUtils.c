@@ -76,6 +76,13 @@ void atualizarCabecalho(FILE* binario, cabecalho_t* cabecalho, int tipo)
 	fwrite(&cabecalho->nroRegRem, sizeof(int), 1, binario);
 }
 
+/**
+ * @brief Função que escreve os campos variáveis de um registro no arquivo 
+ * 
+ * @param binario ponteiro para o arquivo de daos
+ * @param registro struct contendo os dados do registro
+ * @param cabecalho struct contendo os dados do cabeçalho
+ */
 static void escreverNoArquivoVariaveis(FILE* binario, registro_t* registro, cabecalho_t* cabecalho)
 {
 
@@ -433,6 +440,13 @@ void remocaoLogica(cabecalho_t* cab, registro_t* reg, FILE* fptr, int tipo, long
 	atualizarRegistro(tipo, reg, fptr);
 }
 
+/**
+ * @brief Função que remove registros do arquivo de dados e do de índices
+ * 
+ * @param arq struct que contém os dados dos arquivos
+ * @param busca struct que contém informações para a busca
+ * @param removidos lista de ids removidos
+ */
 static void removerRegistros(arquivo_t* arq, buscaParams_t* busca, idsRemovidos_t* removidos)
 {
 
@@ -808,6 +822,12 @@ void liberarStrctArq(arquivo_t* arq)
 	free(arq);
 }
 
+/**
+ * @brief Função que atualiza o tamanho do registro após modificações
+ * 
+ * @param arq struct com os dados dos arquivos
+ * @param novosVal struct com as novas informações
+ */
 static void atualizaTamanhoReg(arquivo_t* arq, buscaParams_t* novosVal)
 {
 	// Calcular tamanho futuro registro
@@ -844,6 +864,11 @@ static void atualizaTamanhoReg(arquivo_t* arq, buscaParams_t* novosVal)
 	arq->reg->tamRegistro += diff;
 }
 
+/**
+ * @brief Função que atualiza os códigos dos registros após modificações
+ * 
+ * @param arq struct com os dados dos arquivos
+ */
 static void atualizaCodigos(arquivo_t* arq)
 {
 	int numPreenchidos = 0;
@@ -881,6 +906,12 @@ static void atualizaCodigos(arquivo_t* arq)
 	}
 }
 
+/**
+ * @brief Função que atualiza os registros com os novos valores
+ * 
+ * @param arq struct para os dados dos arquivos
+ * @param novosVal struct que contém os novos valores
+ */
 void atualizaRegistroNovosVal(arquivo_t* arq, buscaParams_t* novosVal)
 {
 
@@ -1069,6 +1100,13 @@ void acaoFiltro_atualizarRegistro(cabecalho_t* cab, registro_t* reg, FILE* fptr,
 	fseek(fptr, Posinicial, SEEK_SET);
 }
 
+/**
+ * @brief Função que atualiza um registro
+ * 
+ * @param arq struct contendo os dados dos arquivos
+ * @param busca struct contendo as informações para a busca
+ * @param novosVal struct contendo os valores para serem atualizados
+ */
 void updateRegistros(arquivo_t* arq, buscaParams_t* busca, buscaParams_t* novosVal)
 {
 
