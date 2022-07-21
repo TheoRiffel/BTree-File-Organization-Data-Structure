@@ -21,8 +21,8 @@ chave_t* searchBTree(FILE* BTree_file, int RRN_no, int chave, int tipo);
 bool verificaNoFolha(registroBTree_t *no);
 bool verificaTaxaOcupacao(registroBTree_t *no);
 void insertChaveNo(chave_t chave, registroBTree_t *no, int RRN_abaixo, int tipo);
-void split2(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no, chave_t *promo_key, int *promo_r_child, registroBTree_t *novoNo);
-bool insert2(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave, int *promo_r_child, chave_t *promo_key, int tipo);
+void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no, chave_t *promo_key, int *promo_r_child, registroBTree_t *novoNo);
+bool insertNo(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave, int *promo_r_child, chave_t *promo_key, int tipo);
 void insertBTree(FILE* BTree_file, cabecalhoBTree_t *cabecalho, chave_t chave, int tipo);
 cabecalhoBTree_t* inicializarCabecalhoBTree();
 

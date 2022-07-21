@@ -260,7 +260,7 @@ void insertChaveNo(chave_t chave, registroBTree_t *no, int RRN_abaixo, int tipo)
 	no->ptr[i + 1] = RRN_abaixo;
 }
 
-void split2(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no, chave_t *promo_key, int *promo_r_child, registroBTree_t *novoNo)
+void splitNo(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no, chave_t *promo_key, int *promo_r_child, registroBTree_t *novoNo)
 {
 	int i;
 	int mid;
@@ -318,7 +318,7 @@ void split2(cabecalhoBTree_t *cab, chave_t key, int r_child, registroBTree_t *no
 	*promo_key = chavesTemp[TAXA_MINIMA];
 }
 
-bool insert2(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave, int *promo_r_child, chave_t *promo_key, int tipo)
+bool insertNo(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave, int *promo_r_child, chave_t *promo_key, int tipo)
 {
 	registroBTree_t *no, *novo_no;
 	bool promoted;
@@ -356,7 +356,7 @@ bool insert2(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave,
 		i++;
 	int proxRRNregisterBTree = no->ptr[i];
 
-	bool promocao = insert2(cab, BTree_file, proxRRNregisterBTree, chave, &p_b_rrn, &p_b_key, tipo);
+	bool promocao = insertNo(cab, BTree_file, proxRRNregisterBTree, chave, &p_b_rrn, &p_b_key, tipo);
 
 	if (!promocao)
 	{
@@ -368,7 +368,7 @@ bool insert2(cabecalhoBTree_t *cab, FILE *BTree_file, int RRN_no, chave_t chave,
 	if (verificaTaxaOcupacao(no))
 	{
 		novo_no = inicializarRegistroBTree();
-		split2(cab, p_b_key, p_b_rrn, no, promo_key, promo_r_child, novo_no);
+		splitNo(cab, p_b_key, p_b_rrn, no, promo_key, promo_r_child, novo_no);
 		escreverRegistroBTree(BTree_file, RRN_no, no, tipo);
 		escreverRegistroBTree(BTree_file, *promo_r_child, novo_no, tipo);
 		cab->nroNos++;
@@ -406,7 +406,7 @@ void insertBTree(FILE* BTree_file, cabecalhoBTree_t *cabecalho, chave_t chave, i
 		free(raiz);
 		return;
 	}
-	promoted = insert2(cabecalho, BTree_file, cabecalho->noRaiz, chave, &promoRRN, &chave_promo, tipo);
+	promoted = insertNo(cabecalho, BTree_file, cabecalho->noRaiz, chave, &promoRRN, &chave_promo, tipo);
 
 	if (promoted)
 	{

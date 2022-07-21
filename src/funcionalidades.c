@@ -732,6 +732,7 @@ void insertFile()
     binarioNaTela(arquivoDados);
     binarioNaTela(arquivoBTree);
 
+    free(cabecalho);
     free(cabecalhoBTree);
     liberaStrings(tipoArquivo, arquivoDados, arquivoBTree);
 

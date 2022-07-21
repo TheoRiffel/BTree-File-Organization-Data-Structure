@@ -1151,6 +1151,8 @@ void updateRegistros(arquivo_t* arq, buscaParams_t* busca, buscaParams_t* novosV
  */
 void insereRegistroDados(FILE* dados, registro_t* reg, cabecalho_t* cab, int tipo, chave_t* chave)
 {
+	int tamanho = 0;
+	bool escreveLixo = false;
 	// ir para o local do arquivo onde será inserido o registro
 	if (tipo == 1)
 	{
@@ -1178,15 +1180,16 @@ void insereRegistroDados(FILE* dados, registro_t* reg, cabecalho_t* cab, int tip
 		if(posicao != -1) // caso tenha removidos, verificar o tamanho
 		{
 			fseek(dados, posicao + 1, SEEK_SET);
-			int novoTopo, tamanho;
+			int novoTopo;
 			fread(&tamanho, sizeof(int), 1, dados);
 			fread(&novoTopo, sizeof(long int), 1, dados);
-			if(tamanho <= reg->tamRegistro) //se cabe, inserir
+			if(reg->tamRegistro <= tamanho) //se cabe, inserir
 			{
-				fseek(dados, -(sizeof(long int) + sizeof(long int) + 1), SEEK_CUR);
+				fseek(dados, -(sizeof(int) + sizeof(long int) + 1), SEEK_CUR);
 				chave->byteOffset = cab->topoB;
 				cab->topoB = novoTopo;
 				cab->nroRegRem--;
+				escreveLixo = true;
 			}
 			else // se não, vai para o fim do arquivo
 			{
@@ -1203,5 +1206,8 @@ void insereRegistroDados(FILE* dados, registro_t* reg, cabecalho_t* cab, int tip
 			}
 	}
 	// inserir o registro
+	int qttLixo = tamanho - reg->tamRegistro + 5;
+	reg->tamRegistro = tamanho;
 	escreverNoArquivo(dados, reg, cab, tipo);
+	if (escreveLixo) escreverLixo(dados, qttLixo, "$");
 }
